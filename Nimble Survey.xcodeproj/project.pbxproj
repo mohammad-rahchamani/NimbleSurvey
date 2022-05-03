@@ -16,6 +16,9 @@
 		B5F6BB5328211E6400029D55 /* Nimble_SurveyUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB5228211E6400029D55 /* Nimble_SurveyUITests.swift */; };
 		B5F6BB5528211E6400029D55 /* Nimble_SurveyUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB5428211E6400029D55 /* Nimble_SurveyUITestsLaunchTests.swift */; };
 		B5F6BB6228211EB100029D55 /* NetworkHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB6128211EB100029D55 /* NetworkHandlerTests.swift */; };
+		B5F6BB652821414700029D55 /* URLProtocolStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB642821414700029D55 /* URLProtocolStub.swift */; };
+		B5F6BB672821416200029D55 /* AsyncURLProtocolStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB662821416200029D55 /* AsyncURLProtocolStub.swift */; };
+		B5F6BB6A2821419600029D55 /* NetworkHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB692821419600029D55 /* NetworkHandler.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +52,9 @@
 		B5F6BB5228211E6400029D55 /* Nimble_SurveyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Nimble_SurveyUITests.swift; sourceTree = "<group>"; };
 		B5F6BB5428211E6400029D55 /* Nimble_SurveyUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Nimble_SurveyUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		B5F6BB6128211EB100029D55 /* NetworkHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkHandlerTests.swift; sourceTree = "<group>"; };
+		B5F6BB642821414700029D55 /* URLProtocolStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLProtocolStub.swift; sourceTree = "<group>"; };
+		B5F6BB662821416200029D55 /* AsyncURLProtocolStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncURLProtocolStub.swift; sourceTree = "<group>"; };
+		B5F6BB692821419600029D55 /* NetworkHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkHandler.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +105,7 @@
 		B5F6BB3028211E6100029D55 /* Nimble Survey */ = {
 			isa = PBXGroup;
 			children = (
+				B5F6BB682821418700029D55 /* Network */,
 				B5F6BB3128211E6100029D55 /* AppDelegate.swift */,
 				B5F6BB3328211E6100029D55 /* SceneDelegate.swift */,
 				B5F6BB3528211E6100029D55 /* ViewController.swift */,
@@ -113,6 +120,7 @@
 		B5F6BB4728211E6400029D55 /* Nimble SurveyTests */ = {
 			isa = PBXGroup;
 			children = (
+				B5F6BB632821413800029D55 /* Helper */,
 				B5F6BB6128211EB100029D55 /* NetworkHandlerTests.swift */,
 			);
 			path = "Nimble SurveyTests";
@@ -125,6 +133,23 @@
 				B5F6BB5428211E6400029D55 /* Nimble_SurveyUITestsLaunchTests.swift */,
 			);
 			path = "Nimble SurveyUITests";
+			sourceTree = "<group>";
+		};
+		B5F6BB632821413800029D55 /* Helper */ = {
+			isa = PBXGroup;
+			children = (
+				B5F6BB642821414700029D55 /* URLProtocolStub.swift */,
+				B5F6BB662821416200029D55 /* AsyncURLProtocolStub.swift */,
+			);
+			path = Helper;
+			sourceTree = "<group>";
+		};
+		B5F6BB682821418700029D55 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				B5F6BB692821419600029D55 /* NetworkHandler.swift */,
+			);
+			path = Network;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -262,6 +287,7 @@
 				B5F6BB3628211E6100029D55 /* ViewController.swift in Sources */,
 				B5F6BB3228211E6100029D55 /* AppDelegate.swift in Sources */,
 				B5F6BB3428211E6100029D55 /* SceneDelegate.swift in Sources */,
+				B5F6BB6A2821419600029D55 /* NetworkHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -270,6 +296,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				B5F6BB6228211EB100029D55 /* NetworkHandlerTests.swift in Sources */,
+				B5F6BB672821416200029D55 /* AsyncURLProtocolStub.swift in Sources */,
+				B5F6BB652821414700029D55 /* URLProtocolStub.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -440,7 +468,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8LK77AKP63;
+				DEVELOPMENT_TEAM = PMULSY6HU4;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Nimble Survey/Info.plist";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -468,7 +496,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8LK77AKP63;
+				DEVELOPMENT_TEAM = PMULSY6HU4;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Nimble Survey/Info.plist";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -546,13 +574,17 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8LK77AKP63;
+				DEVELOPMENT_TEAM = PMULSY6HU4;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "me.rahchamani.Nimble-SurveyUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -564,13 +596,17 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8LK77AKP63;
+				DEVELOPMENT_TEAM = PMULSY6HU4;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "me.rahchamani.Nimble-SurveyUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
