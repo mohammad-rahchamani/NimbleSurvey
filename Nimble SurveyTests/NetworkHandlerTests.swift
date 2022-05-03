@@ -206,6 +206,29 @@ class NetworkHandlerTests: XCTestCase {
                stubbing: (nil, nil, nil))
     }
     
+    func test_load_failsNonSuccessfulResponseAndData() {
+        let sut = makeSUT()
+        let notSuccessfulCodes: [Int] = [-1, 0, 199, 300, 400, 500]
+        for code in notSuccessfulCodes {
+            assert(sut,
+                   loads: anyRequest(),
+                   receives: .failure(anyNSError()),
+                   stubbing: (Data(), httpResponse(for: anyURL(), withStatus: code), nil))
+        }
+    }
+
+    func test_load_deliversDataOnDataAndSuccessfulStatus() {
+        let sut = makeSUT()
+        let expectedData = someData()
+        let successfulCodes = 200...299
+        for code in successfulCodes {
+            assert(sut,
+                   loads: anyRequest(),
+                   receives: .success(expectedData),
+                   stubbing: (expectedData, httpResponse(for: anyURL(), withStatus: code), nil))
+        }
+    }
+    
     // MARK: - helpers
     
     func makeSUT() -> NetworkHandler {
@@ -258,6 +281,10 @@ class NetworkHandlerTests: XCTestCase {
     
     func anyNSError() -> NSError {
         NSError(domain: "test domain", code: 0, userInfo: nil)
+    }
+    
+    func someData() -> Data {
+        "some value".data(using: .utf8)!
     }
     
     func httpResponse(for url: URL, withStatus status: Int) -> HTTPURLResponse? {
