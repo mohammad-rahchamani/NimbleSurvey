@@ -71,6 +71,39 @@ class URLProtocolStub: URLProtocol {
     
 }
 
+class AsyncURLProtocolStub: URLProtocolStub {
+    
+    private static var requestClient: URLProtocolClient?
+    private static var protocolInstance: AsyncURLProtocolStub?
+    
+    private static func loadFromStub() {
+        guard let stub = URLProtocolStub.stub,
+        let protocolInstance = protocolInstance else { return }
+        if let data = stub.data {
+            requestClient?.urlProtocol(protocolInstance, didLoad: data)
+        }
+        if let response = stub.response {
+            requestClient?.urlProtocol(protocolInstance,
+                                didReceive: response,
+                                cacheStoragePolicy: .notAllowed)
+        }
+        if let error = stub.error {
+            requestClient?.urlProtocol(protocolInstance, didFailWithError: error)
+        }
+        requestClient?.urlProtocolDidFinishLoading(protocolInstance)
+    }
+    
+    override func startLoading() {
+        URLProtocolStub.observer?(request)
+        AsyncURLProtocolStub.requestClient = client
+        AsyncURLProtocolStub.protocolInstance = self
+    }
+    
+    static func complete() {
+        loadFromStub()
+    }
+}
+
 class NetworkHandler {
     
     private static let VALID_STATUS_CODES = 200...299
@@ -83,7 +116,9 @@ class NetworkHandler {
     
     func load(request: URLRequest,
               completion: @escaping (Result<Data, Error>) -> ()) {
-        session.dataTask(with: request) { data, response, error in
+        session.dataTask(with: request) { [weak self] data, response, error in
+            
+            guard let _ = self else { return }
             
             if let error = error {
                 completion(.failure(error))
@@ -229,10 +264,31 @@ class NetworkHandlerTests: XCTestCase {
         }
     }
     
-    // MARK: - helpers
+    func test_load_doesNotCallCompletionAfterInstanceDeallocated() {
+        URLProtocolStub.stopIntercepting()
+        AsyncURLProtocolStub.startIntercepting()
+        AsyncURLProtocolStub.stub(withData: someData(),
+                                  response: httpResponse(for: anyURL(), withStatus: 200),
+                                  error: nil)
+        var sut: NetworkHandler? = NetworkHandler(session: .shared)
+        let exp = XCTestExpectation(description: "waiting for network call")
+        AsyncURLProtocolStub.observe { _ in exp.fulfill() }
+        sut?.load(request: anyRequest()) { _ in
+            XCTFail("should not be called")
+        }
+        sut = nil
+        wait(for: [exp], timeout: 1)
+        AsyncURLProtocolStub.complete()
+        AsyncURLProtocolStub.stopIntercepting()
+    }
     
-    func makeSUT() -> NetworkHandler {
-        NetworkHandler(session: .shared)
+    // MARK: - helpers
+    func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> NetworkHandler {
+        let sut = NetworkHandler(session: .shared)
+        addTeardownBlock { [weak sut] in
+            XCTAssertNil(sut, "instance should be nil", file: file, line: line)
+        }
+        return sut
     }
     
     func assert(_ sut: NetworkHandler,
