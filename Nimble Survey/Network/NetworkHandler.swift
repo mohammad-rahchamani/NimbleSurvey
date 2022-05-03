@@ -7,7 +7,14 @@
 
 import Foundation
 
-public final class NetworkHandler {
+public protocol RequestLoader {
+    
+    func load(request: URLRequest,
+              completion: @escaping (Result<Data, Error>) -> ())
+    
+}
+
+public final class NetworkHandler: RequestLoader {
     
     private static let VALID_STATUS_CODES = 200...299
     
