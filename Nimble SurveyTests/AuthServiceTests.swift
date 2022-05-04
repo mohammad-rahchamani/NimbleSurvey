@@ -54,8 +54,40 @@ class AuthService {
         
     }
     
+    func register(withEmail email: String,
+                  password: String,
+                  passwordConfirmation: String,
+                  completion: @escaping (Result<(), Error>) -> ()) {
+        
+        let user = RegisterUserData(email: email,
+                                    password: password,
+                                    passwordConfirmation: passwordConfirmation)
+        let data = RegisterRequestData(user: user,
+                                       clientId: clientId,
+                                       clientSecret: clientSecret)
+        loader.load(request: registerRequest(withData: data)) { [weak self] result in
+            guard let _ = self else { return }
+            switch result {
+            case .failure(let error):
+                completion(.failure(AuthServiceError.loaderError(error)))
+            case .success:
+                completion(.success(()))
+            }
+        }
+    }
+    
     private func loginRequest(withData data: LoginRequestData) -> URLRequest {
         let url = URL(string: "\(baseURL)/api/v1/oauth/token")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+        request.httpBody = try? encoder.encode(data)
+        return request
+    }
+    
+    private func registerRequest(withData data: RegisterRequestData) -> URLRequest {
+        let url = URL(string: "\(baseURL)/api/v1/registrations")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         let encoder = JSONEncoder()
@@ -83,6 +115,18 @@ class AuthService {
         let clientSecret: String
     }
     
+    private struct RegisterUserData: Codable {
+        let email: String
+        let password: String
+        let passwordConfirmation: String
+    }
+    
+    private struct RegisterRequestData: Codable {
+        let user: RegisterUserData
+        let clientId: String
+        let clientSecret: String
+    }
+    
     private struct AuthTokenData: Codable {
         let id: Int
         let type: String
@@ -106,6 +150,8 @@ class AuthServiceTests: XCTestCase {
         let (spy, _) = makeSUT()
         XCTAssertEqual(spy.messages.count, 0)
     }
+
+    // MARK: - login
     
     func test_login_requestsLoader() {
         let url = "https:/any-url.com"
@@ -168,6 +214,63 @@ class AuthServiceTests: XCTestCase {
         spy.completeLoad(with: .success(sampleAuthData()))
     }
     
+    // MARK: - register
+    
+    func test_register_requestsLoader() {
+        let url = "https:/any-url.com"
+        let email = "email"
+        let password = "password"
+        let confirm = "password"
+        let (spy, sut) = makeSUT(baseURL: url)
+        
+        sut.register(withEmail: email,
+                     password: password,
+                     passwordConfirmation: confirm) { _ in }
+        
+        let expectedURL = URL(string: "\(url)/api/v1/registrations")!
+        
+        XCTAssertEqual(spy.messages.count, 1)
+        let capturedRequest = spy.messages.keys.first!
+        XCTAssertEqual(capturedRequest.url, expectedURL)
+        XCTAssertEqual(capturedRequest.httpMethod, "POST")
+        XCTAssertNotNil(capturedRequest.httpBody)
+    }
+    
+    func test_register_failsOnLoaderError() {
+        let (spy, sut) = makeSUT()
+        expect(sut,
+               toRegisterWithEmail: "",
+               password: "",
+               andConfirmation: "",
+               withResult: .failure(anyNSError())) {
+            spy.completeLoad(with: .failure(anyNSError()))
+        }
+    }
+    
+    func test_register_deliversSuccessOnLoaderData() {
+        let (spy, sut) = makeSUT()
+        expect(sut,
+               toRegisterWithEmail: "",
+               password: "",
+               andConfirmation: "",
+               withResult: .success(())) {
+            spy.completeLoad(with: .success(Data()))
+        }
+    }
+    
+    func test_register_doesNotCallCompletionAfterObjectDeallocated() {
+        let spy = RequestLoaderSpy()
+        var sut: AuthService? = AuthService(loader: spy,
+                                            baseURL: "https://any-url.com",
+                                            clientId: "",
+                                            clientSecret: "")
+        sut?.register(withEmail: "", password: "", passwordConfirmation: "") { _ in
+            XCTFail()
+        }
+        
+        sut = nil
+        spy.completeLoad(with: .success(Data()))
+    }
     // MARK: - helpers
     
     func makeSUT(baseURL: String = "https://some-url.com",
@@ -184,7 +287,7 @@ class AuthServiceTests: XCTestCase {
         trackForMemoryLeak(sut, file: file, line: line)
         return (spy, sut)
     }
-
+    
     func expect(_ sut: AuthService,
                 toLoginWithEmail email: String,
                 andPassword password: String,
@@ -199,6 +302,34 @@ class AuthServiceTests: XCTestCase {
                 ()
             case (.success(let data), .success(let expectedData)):
                 XCTAssertEqual(data, expectedData, file: file, line: line)
+            default:
+                XCTFail(file: file, line: line)
+            }
+            exp.fulfill()
+        }
+        
+        action()
+        
+        wait(for: [exp], timeout: 1)
+    }
+    
+    func expect(_ sut: AuthService,
+                toRegisterWithEmail email: String,
+                password: String,
+                andConfirmation confirmation: String,
+                withResult expectedResult: Result<(), Error>,
+                executing action: () -> (),
+                file: StaticString = #filePath,
+                line: UInt = #line) {
+        let exp = XCTestExpectation(description: "waiting for register completion")
+        sut.register(withEmail: email,
+                     password: password,
+                     passwordConfirmation: confirmation) { result in
+            switch (result, expectedResult) {
+            case (.failure, .failure):
+                ()
+            case (.success, .success):
+                ()
             default:
                 XCTFail(file: file, line: line)
             }
