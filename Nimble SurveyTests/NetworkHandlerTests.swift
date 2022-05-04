@@ -142,9 +142,7 @@ class NetworkHandlerTests: XCTestCase {
     // MARK: - helpers
     func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> NetworkHandler {
         let sut = NetworkHandler(session: .shared)
-        addTeardownBlock { [weak sut] in
-            XCTAssertNil(sut, "instance should be nil", file: file, line: line)
-        }
+        trackForMemoryLeak(sut)
         return sut
     }
     
@@ -182,29 +180,6 @@ class NetworkHandlerTests: XCTestCase {
             exp.fulfill()
         }
         wait(for: [exp], timeout: 1)
-    }
-    
-    func anyURL() -> URL {
-        URL(string: "https://any-url.com")!
-    }
-    
-    func anyRequest() -> URLRequest {
-        URLRequest(url: anyURL())
-    }
-    
-    func anyNSError() -> NSError {
-        NSError(domain: "test domain", code: 0, userInfo: nil)
-    }
-    
-    func someData() -> Data {
-        "some value".data(using: .utf8)!
-    }
-    
-    func httpResponse(for url: URL, withStatus status: Int) -> HTTPURLResponse? {
-        HTTPURLResponse(url: url,
-                        statusCode: status,
-                        httpVersion: nil,
-                        headerFields: nil)
     }
 
 }

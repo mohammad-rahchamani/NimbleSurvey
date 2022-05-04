@@ -20,6 +20,7 @@
 		B5F6BB672821416200029D55 /* AsyncURLProtocolStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB662821416200029D55 /* AsyncURLProtocolStub.swift */; };
 		B5F6BB6A2821419600029D55 /* NetworkHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB692821419600029D55 /* NetworkHandler.swift */; };
 		B5F6BB6C2821433E00029D55 /* AuthServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB6B2821433E00029D55 /* AuthServiceTests.swift */; };
+		B5F6BB6E2822654000029D55 /* XCTestCase+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB6D2822654000029D55 /* XCTestCase+Extensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +58,7 @@
 		B5F6BB662821416200029D55 /* AsyncURLProtocolStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncURLProtocolStub.swift; sourceTree = "<group>"; };
 		B5F6BB692821419600029D55 /* NetworkHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkHandler.swift; sourceTree = "<group>"; };
 		B5F6BB6B2821433E00029D55 /* AuthServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthServiceTests.swift; sourceTree = "<group>"; };
+		B5F6BB6D2822654000029D55 /* XCTestCase+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+Extensions.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -143,6 +145,7 @@
 			children = (
 				B5F6BB642821414700029D55 /* URLProtocolStub.swift */,
 				B5F6BB662821416200029D55 /* AsyncURLProtocolStub.swift */,
+				B5F6BB6D2822654000029D55 /* XCTestCase+Extensions.swift */,
 			);
 			path = Helper;
 			sourceTree = "<group>";
@@ -300,6 +303,7 @@
 			files = (
 				B5F6BB6228211EB100029D55 /* NetworkHandlerTests.swift in Sources */,
 				B5F6BB672821416200029D55 /* AsyncURLProtocolStub.swift in Sources */,
+				B5F6BB6E2822654000029D55 /* XCTestCase+Extensions.swift in Sources */,
 				B5F6BB652821414700029D55 /* URLProtocolStub.swift in Sources */,
 				B5F6BB6C2821433E00029D55 /* AuthServiceTests.swift in Sources */,
 			);

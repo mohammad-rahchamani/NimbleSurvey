@@ -52,12 +52,8 @@ class AuthServiceTests: XCTestCase {
     func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (RequestLoaderSpy, AuthService) {
         let spy = RequestLoaderSpy()
         let sut = AuthService(loader: spy)
-        addTeardownBlock { [weak spy] in
-            XCTAssertNil(spy, "instance should be nil", file: file, line: line)
-        }
-        addTeardownBlock { [weak sut] in
-            XCTAssertNil(sut, "instance should be nil", file: file, line: line)
-        }
+        trackForMemoryLeak(spy)
+        trackForMemoryLeak(sut)
         return (spy, sut)
     }
 
