@@ -82,14 +82,25 @@ class AuthServiceTests: XCTestCase {
     }
     
     func test_login_requestsLoader() {
-        let (spy, sut) = makeSUT()
-        sut.login(withEmail: "", andPassword: "") { _ in }
+        let url = "https:/any-url.com"
+        let email = "email"
+        let password = "password"
+        let (spy, sut) = makeSUT(baseURL: url)
+        
+        sut.login(withEmail: email, andPassword: password) { _ in }
+        
+        let expectedURL = URL(string: "\(url)/api/v1/oauth/token")!
+        
         XCTAssertEqual(spy.messages.count, 1)
+        let capturedRequest = spy.messages.keys.first!
+        XCTAssertEqual(capturedRequest.url, expectedURL)
+        XCTAssertEqual(capturedRequest.httpMethod, "POST")
+        XCTAssertNotNil(capturedRequest.httpBody)
     }
     
     // MARK: - helpers
     
-    func makeSUT(baseURL: String = "https://any-url.com",
+    func makeSUT(baseURL: String = "https://some-url.com",
                  clientId: String = "id",
                  clientSecret: String = "secret",
                  file: StaticString = #filePath,
