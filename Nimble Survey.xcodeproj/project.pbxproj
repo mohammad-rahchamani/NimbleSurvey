@@ -24,6 +24,7 @@
 		B5F6BB72282292B100029D55 /* AuthToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB71282292B100029D55 /* AuthToken.swift */; };
 		B5F6BB74282292F900029D55 /* RequestLoaderSpy.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB73282292F900029D55 /* RequestLoaderSpy.swift */; };
 		B5F6BB762822932400029D55 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB752822932400029D55 /* AuthService.swift */; };
+		B5F6BB7828229C0200029D55 /* SurveyLoaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB7728229C0200029D55 /* SurveyLoaderTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,6 +66,7 @@
 		B5F6BB71282292B100029D55 /* AuthToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthToken.swift; sourceTree = "<group>"; };
 		B5F6BB73282292F900029D55 /* RequestLoaderSpy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestLoaderSpy.swift; sourceTree = "<group>"; };
 		B5F6BB752822932400029D55 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		B5F6BB7728229C0200029D55 /* SurveyLoaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyLoaderTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -134,6 +136,7 @@
 				B5F6BB632821413800029D55 /* Helper */,
 				B5F6BB6128211EB100029D55 /* NetworkHandlerTests.swift */,
 				B5F6BB6B2821433E00029D55 /* AuthServiceTests.swift */,
+				B5F6BB7728229C0200029D55 /* SurveyLoaderTests.swift */,
 			);
 			path = "Nimble SurveyTests";
 			sourceTree = "<group>";
@@ -329,6 +332,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B5F6BB6228211EB100029D55 /* NetworkHandlerTests.swift in Sources */,
+				B5F6BB7828229C0200029D55 /* SurveyLoaderTests.swift in Sources */,
 				B5F6BB74282292F900029D55 /* RequestLoaderSpy.swift in Sources */,
 				B5F6BB672821416200029D55 /* AsyncURLProtocolStub.swift in Sources */,
 				B5F6BB6E2822654000029D55 /* XCTestCase+Extensions.swift in Sources */,
