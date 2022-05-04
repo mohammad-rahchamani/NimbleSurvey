@@ -34,7 +34,9 @@ class AuthService {
                                     password: password,
                                     clientId: clientId,
                                     clientSecret: clientSecret)
-        loader.load(request: loginRequest(withData: data)) { _ in }
+        loader.load(request: loginRequest(withData: data)) { result in
+            completion(.failure(NSError(domain: "login error", code: 1, userInfo: nil)))
+        }
         
     }
     
@@ -71,6 +73,10 @@ class RequestLoaderSpy: RequestLoader {
         messages[request]?(result)
     }
     
+    func completeLoad(at index: Int = 0, with result: Result<Data, Error>) {
+        Array(messages.values)[index](result)
+    }
+    
     
 }
 
@@ -96,6 +102,25 @@ class AuthServiceTests: XCTestCase {
         XCTAssertEqual(capturedRequest.url, expectedURL)
         XCTAssertEqual(capturedRequest.httpMethod, "POST")
         XCTAssertNotNil(capturedRequest.httpBody)
+    }
+    
+    
+    func test_login_failsOnLoaderError() {
+        let (spy, sut) = makeSUT()
+        let exp = XCTestExpectation(description: "waiting for login completion")
+        sut.login(withEmail: "", andPassword: "") { result in
+            switch result {
+            case .failure:
+                ()
+            default:
+                XCTFail()
+            }
+            exp.fulfill()
+        }
+        
+        spy.completeLoad(with: .failure(anyNSError()))
+        
+        wait(for: [exp], timeout: 1)
     }
     
     // MARK: - helpers

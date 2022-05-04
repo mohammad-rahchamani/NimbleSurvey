@@ -142,7 +142,7 @@ class NetworkHandlerTests: XCTestCase {
     // MARK: - helpers
     func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> NetworkHandler {
         let sut = NetworkHandler(session: .shared)
-        trackForMemoryLeak(sut)
+        trackForMemoryLeak(sut, file: file, line: line)
         return sut
     }
     
