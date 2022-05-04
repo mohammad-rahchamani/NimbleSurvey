@@ -59,7 +59,7 @@ public class SurveyLoader {
                                                size: size,
                                                tokenType: tokenType,
                                                accessToken: accessToken)) { result in
-            
+            completion(.failure(NSError(domain: "", code: 1, userInfo: nil)))
         }
         
     }
@@ -121,7 +121,17 @@ class SurveyLoaderTests: XCTestCase {
         XCTAssertEqual(capturedRequest.allHTTPHeaderFields!["Authorization"], "\(tokenType) \(accessToken)")
     }
     
-    
+    func test_load_failsOnLoaderError() {
+        let (spy, sut) = makeSUT()
+        expect(sut,
+               toLoadPage: 1,
+               withSize: 10,
+               tokenType: "token",
+               accessToken: "token",
+               withResult: .failure(anyNSError())) {
+            spy.completeLoad(with: .failure(anyNSError()))
+        }
+    }
     
     // MARK: - helpers
     
@@ -132,6 +142,36 @@ class SurveyLoaderTests: XCTestCase {
         trackForMemoryLeak(spy, file: file, line: line)
         trackForMemoryLeak(sut, file: file, line: line)
         return (spy, sut)
+    }
+    
+    func expect(_ sut: SurveyLoader,
+                toLoadPage page: Int,
+                withSize size: Int,
+                tokenType: String,
+                accessToken: String,
+                withResult expectedResult: Result<[Survey], Error>,
+                executing action: () -> (),
+                file: StaticString = #filePath,
+                line: UInt = #line) {
+        let exp = XCTestExpectation(description: "waiting for load completion")
+        sut.load(page: page,
+                 size: size,
+                 tokenType: tokenType,
+                 accessToken: accessToken) { result in
+            switch (result, expectedResult) {
+            case (.failure, .failure):
+                ()
+            case (.success(let surveys), .success(let expectedSurveys)):
+                XCTAssertEqual(surveys, expectedSurveys, file: file, line: line)
+            default:
+                XCTFail(file: file, line: line)
+            }
+            exp.fulfill()
+        }
+        
+        action()
+        
+        wait(for: [exp], timeout: 1)
     }
     
 }
