@@ -8,7 +8,7 @@
 import XCTest
 import Nimble_Survey
 
-struct AuthToken: Equatable, Codable {
+public struct AuthToken: Equatable, Codable {
     let accessToken: String
     let refreshToken: String
     let tokenType: String
@@ -16,26 +16,26 @@ struct AuthToken: Equatable, Codable {
     let createdAt: Double
 }
 
-class AuthService {
+public class AuthService {
     
     private let loader: RequestLoader
     private let baseURL: String
     private let clientId: String
     private let clientSecret: String
     
-    init(loader: RequestLoader,
-         baseURL: String,
-         clientId: String,
-         clientSecret: String) {
+    public init(loader: RequestLoader,
+                baseURL: String,
+                clientId: String,
+                clientSecret: String) {
         self.loader = loader
         self.baseURL = baseURL
         self.clientId = clientId
         self.clientSecret = clientSecret
     }
     
-    func login(withEmail email: String,
-               andPassword password: String,
-               completion: @escaping (Result<AuthToken, Error>) -> ()) {
+    public func login(withEmail email: String,
+                      andPassword password: String,
+                      completion: @escaping (Result<AuthToken, Error>) -> ()) {
         
         let data = LoginRequestData(grantType: "password",
                                     email: email,
@@ -54,10 +54,10 @@ class AuthService {
         
     }
     
-    func register(withEmail email: String,
-                  password: String,
-                  passwordConfirmation: String,
-                  completion: @escaping (Result<(), Error>) -> ()) {
+    public func register(withEmail email: String,
+                         password: String,
+                         passwordConfirmation: String,
+                         completion: @escaping (Result<(), Error>) -> ()) {
         
         let user = RegisterUserData(email: email,
                                     password: password,
@@ -66,6 +66,22 @@ class AuthService {
                                        clientId: clientId,
                                        clientSecret: clientSecret)
         loader.load(request: registerRequest(withData: data)) { [weak self] result in
+            guard let _ = self else { return }
+            switch result {
+            case .failure(let error):
+                completion(.failure(AuthServiceError.loaderError(error)))
+            case .success:
+                completion(.success(()))
+            }
+        }
+    }
+    
+    public func logout(token: String,
+                       completion: @escaping (Result<(), Error>) -> ()) {
+        let data = LogoutRequestData(token: token,
+                                     clientId: clientId,
+                                     clientSecret: clientSecret)
+        loader.load(request: logoutRequest(withData: data)) { [weak self] result in
             guard let _ = self else { return }
             switch result {
             case .failure(let error):
@@ -88,6 +104,16 @@ class AuthService {
     
     private func registerRequest(withData data: RegisterRequestData) -> URLRequest {
         let url = URL(string: "\(baseURL)/api/v1/registrations")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+        request.httpBody = try? encoder.encode(data)
+        return request
+    }
+    
+    private func logoutRequest(withData data: LogoutRequestData) -> URLRequest {
+        let url = URL(string: "\(baseURL)/api/v1/oauth/revoke")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         let encoder = JSONEncoder()
@@ -123,6 +149,12 @@ class AuthService {
     
     private struct RegisterRequestData: Codable {
         let user: RegisterUserData
+        let clientId: String
+        let clientSecret: String
+    }
+    
+    private struct LogoutRequestData: Codable {
+        let token: String
         let clientId: String
         let clientSecret: String
     }
@@ -271,6 +303,56 @@ class AuthServiceTests: XCTestCase {
         sut = nil
         spy.completeLoad(with: .success(Data()))
     }
+    
+    // MARK: - logout
+    
+    func test_logout_requestsLoader() {
+        let url = "https:/any-url.com"
+        let (spy, sut) = makeSUT(baseURL: url)
+        
+        sut.logout(token: "") { _ in }
+        
+        let expectedURL = URL(string: "\(url)/api/v1/oauth/revoke")!
+        
+        XCTAssertEqual(spy.messages.count, 1)
+        let capturedRequest = spy.messages.keys.first!
+        XCTAssertEqual(capturedRequest.url, expectedURL)
+        XCTAssertEqual(capturedRequest.httpMethod, "POST")
+        XCTAssertNotNil(capturedRequest.httpBody)
+    }
+    
+    func test_logout_failsOnLoaderError() {
+        let (spy, sut) = makeSUT()
+        expect(sut,
+               toLogoutToken: "token",
+               withResult: .failure(anyNSError())) {
+            spy.completeLoad(with: .failure(anyNSError()))
+        }
+    }
+    
+    func test_logout_deliversSuccessOnLoaderData() {
+        let (spy, sut) = makeSUT()
+        expect(sut,
+               toLogoutToken: "token",
+               withResult: .success(())) {
+            spy.completeLoad(with: .success(Data()))
+        }
+    }
+    
+    func test_logout_doesNotCallCompletionAfterObjectDeallocated() {
+        let spy = RequestLoaderSpy()
+        var sut: AuthService? = AuthService(loader: spy,
+                                            baseURL: "https://any-url.com",
+                                            clientId: "",
+                                            clientSecret: "")
+        sut?.logout(token: "token") { _ in
+            XCTFail()
+        }
+        
+        sut = nil
+        spy.completeLoad(with: .success(Data()))
+    }
+    
     // MARK: - helpers
     
     func makeSUT(baseURL: String = "https://some-url.com",
@@ -325,6 +407,30 @@ class AuthServiceTests: XCTestCase {
         sut.register(withEmail: email,
                      password: password,
                      passwordConfirmation: confirmation) { result in
+            switch (result, expectedResult) {
+            case (.failure, .failure):
+                ()
+            case (.success, .success):
+                ()
+            default:
+                XCTFail(file: file, line: line)
+            }
+            exp.fulfill()
+        }
+        
+        action()
+        
+        wait(for: [exp], timeout: 1)
+    }
+    
+    func expect(_ sut: AuthService,
+                toLogoutToken token: String,
+                withResult expectedResult: Result<(), Error>,
+                executing action: () -> (),
+                file: StaticString = #filePath,
+                line: UInt = #line) {
+        let exp = XCTestExpectation(description: "waiting for logout completion")
+        sut.logout(token: token) { result in
             switch (result, expectedResult) {
             case (.failure, .failure):
                 ()
