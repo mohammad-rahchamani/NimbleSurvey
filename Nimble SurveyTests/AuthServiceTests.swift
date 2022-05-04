@@ -42,7 +42,8 @@ class AuthService {
                                     password: password,
                                     clientId: clientId,
                                     clientSecret: clientSecret)
-        loader.load(request: loginRequest(withData: data)) { [unowned self] result in
+        loader.load(request: loginRequest(withData: data)) { [weak self] result in
+            guard let self = self else { return }
             switch result {
             case .failure(let error):
                 completion(.failure(AuthServiceError.loaderError(error)))
@@ -151,6 +152,20 @@ class AuthServiceTests: XCTestCase {
                withResult: .success(sampleAuthToken())) {
             spy.completeLoad(with: .success(sampleAuthData()))
         }
+    }
+    
+    func test_login_doesNotCallCompletionAfterObjectDeallocated() {
+        let spy = RequestLoaderSpy()
+        var sut: AuthService? = AuthService(loader: spy,
+                                            baseURL: "https://any-url.com",
+                                            clientId: "",
+                                            clientSecret: "")
+        sut?.login(withEmail: "", andPassword: "") { _ in
+            XCTFail()
+        }
+        
+        sut = nil
+        spy.completeLoad(with: .success(sampleAuthData()))
     }
     
     // MARK: - helpers
