@@ -8,6 +8,14 @@
 import XCTest
 import Nimble_Survey
 
+struct AuthToken: Equatable, Codable {
+    let accessToken: String
+    let refreshToken: String
+    let tokenType: String
+    let expiresIn: Double
+    let createdAt: Double
+}
+
 class AuthService {
     
     private let loader: RequestLoader
@@ -27,15 +35,20 @@ class AuthService {
     
     func login(withEmail email: String,
                andPassword password: String,
-               completion: @escaping (Result<Bool, Error>) -> ()) {
+               completion: @escaping (Result<AuthToken, Error>) -> ()) {
         
         let data = LoginRequestData(grantType: "password",
                                     email: email,
                                     password: password,
                                     clientId: clientId,
                                     clientSecret: clientSecret)
-        loader.load(request: loginRequest(withData: data)) { result in
-            completion(.failure(NSError(domain: "login error", code: 1, userInfo: nil)))
+        loader.load(request: loginRequest(withData: data)) { [unowned self] result in
+            switch result {
+            case .failure(let error):
+                completion(.failure(AuthServiceError.loaderError(error)))
+            case .success(let data):
+                completion(self.parseLoginData(data))
+            }
         }
         
     }
@@ -50,6 +63,17 @@ class AuthService {
         return request
     }
     
+    private func parseLoginData(_ data: Data) -> Result<AuthToken, Error> {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        do {
+            let response = try decoder.decode(LoginResponseData.self, from: data)
+            return .success(response.data.attributes)
+        } catch {
+            return .failure(AuthServiceError.invalidData)
+        }
+    }
+    
     private struct LoginRequestData: Codable {
         let grantType: String
         let email: String
@@ -58,25 +82,20 @@ class AuthService {
         let clientSecret: String
     }
     
-}
-
-class RequestLoaderSpy: RequestLoader {
-    
-    private(set) var messages: [URLRequest : (Result<Data, Error>) -> ()] = [:]
-    
-    func load(request: URLRequest,
-              completion: @escaping (Result<Data, Error>) -> ()) {
-        messages[request] = completion
+    private struct AuthTokenData: Codable {
+        let id: Int
+        let type: String
+        let attributes: AuthToken
     }
     
-    func completeLoad(for request: URLRequest, with result: Result<Data, Error>) {
-        messages[request]?(result)
+    private struct LoginResponseData: Codable {
+        let data: AuthTokenData
     }
     
-    func completeLoad(at index: Int = 0, with result: Result<Data, Error>) {
-        Array(messages.values)[index](result)
+    private enum AuthServiceError: Error {
+        case loaderError(Error)
+        case invalidData
     }
-    
     
 }
 
@@ -104,23 +123,34 @@ class AuthServiceTests: XCTestCase {
         XCTAssertNotNil(capturedRequest.httpBody)
     }
     
-    
     func test_login_failsOnLoaderError() {
         let (spy, sut) = makeSUT()
-        let exp = XCTestExpectation(description: "waiting for login completion")
-        sut.login(withEmail: "", andPassword: "") { result in
-            switch result {
-            case .failure:
-                ()
-            default:
-                XCTFail()
-            }
-            exp.fulfill()
+        expect(sut,
+               toLoginWithEmail: "",
+               andPassword: "",
+               withResult: .failure(anyNSError())) {
+            spy.completeLoad(with: .failure(anyNSError()))
         }
-        
-        spy.completeLoad(with: .failure(anyNSError()))
-        
-        wait(for: [exp], timeout: 1)
+    }
+    
+    func test_login_failsOnInvalidData() {
+        let (spy, sut) = makeSUT()
+        expect(sut,
+               toLoginWithEmail: "",
+               andPassword: "",
+               withResult: .failure(anyNSError())) {
+            spy.completeLoad(with: .success(Data()))
+        }
+    }
+    
+    func test_login_deliversTokenOnLoaderData() {
+        let (spy, sut) = makeSUT()
+        expect(sut,
+               toLoginWithEmail: "",
+               andPassword: "",
+               withResult: .success(sampleAuthToken())) {
+            spy.completeLoad(with: .success(sampleAuthData()))
+        }
     }
     
     // MARK: - helpers
@@ -135,9 +165,81 @@ class AuthServiceTests: XCTestCase {
                               baseURL: baseURL,
                               clientId: clientId,
                               clientSecret: clientSecret)
-        trackForMemoryLeak(spy)
-        trackForMemoryLeak(sut)
+        trackForMemoryLeak(spy, file: file, line: line)
+        trackForMemoryLeak(sut, file: file, line: line)
         return (spy, sut)
     }
 
+    func expect(_ sut: AuthService,
+                toLoginWithEmail email: String,
+                andPassword password: String,
+                withResult expectedResult: Result<AuthToken, Error>,
+                executing action: () -> (),
+                file: StaticString = #filePath,
+                line: UInt = #line) {
+        let exp = XCTestExpectation(description: "waiting for login completion")
+        sut.login(withEmail: email, andPassword: password) { result in
+            switch (result, expectedResult) {
+            case (.failure, .failure):
+                ()
+            case (.success(let data), .success(let expectedData)):
+                XCTAssertEqual(data, expectedData, file: file, line: line)
+            default:
+                XCTFail(file: file, line: line)
+            }
+            exp.fulfill()
+        }
+        
+        action()
+        
+        wait(for: [exp], timeout: 1)
+    }
+    
+    func sampleAuthToken() -> AuthToken {
+        AuthToken(accessToken: "lbxD2K2BjbYtNzz8xjvh2FvSKx838KBCf79q773kq2c",
+                  refreshToken: "3zJz2oW0njxlj_I3ghyUBF7ZfdQKYXd2n0ODlMkAjHc",
+                  tokenType: "Bearer",
+                  expiresIn: 7200,
+                  createdAt: 1597169495)
+    }
+    
+    func sampleAuthData() -> Data {
+        let data: String = """
+            {
+              "data": {
+                "id": 10,
+                "type": "token",
+                "attributes": {
+                  "access_token": "lbxD2K2BjbYtNzz8xjvh2FvSKx838KBCf79q773kq2c",
+                  "token_type": "Bearer",
+                  "expires_in": 7200,
+                  "refresh_token": "3zJz2oW0njxlj_I3ghyUBF7ZfdQKYXd2n0ODlMkAjHc",
+                  "created_at": 1597169495
+                }
+              }
+            }
+            """
+        return data.data(using: .utf8)!
+        
+    }
+}
+
+class RequestLoaderSpy: RequestLoader {
+    
+    private(set) var messages: [URLRequest : (Result<Data, Error>) -> ()] = [:]
+    
+    func load(request: URLRequest,
+              completion: @escaping (Result<Data, Error>) -> ()) {
+        messages[request] = completion
+    }
+    
+    func completeLoad(for request: URLRequest, with result: Result<Data, Error>) {
+        messages[request]?(result)
+    }
+    
+    func completeLoad(at index: Int = 0, with result: Result<Data, Error>) {
+        Array(messages.values)[index](result)
+    }
+    
+    
 }
