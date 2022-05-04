@@ -10,16 +10,50 @@ import Nimble_Survey
 
 class AuthService {
     
-    let loader: RequestLoader
+    private let loader: RequestLoader
+    private let baseURL: String
+    private let clientId: String
+    private let clientSecret: String
     
-    init(loader: RequestLoader) {
+    init(loader: RequestLoader,
+         baseURL: String,
+         clientId: String,
+         clientSecret: String) {
         self.loader = loader
+        self.baseURL = baseURL
+        self.clientId = clientId
+        self.clientSecret = clientSecret
     }
     
     func login(withEmail email: String,
                andPassword password: String,
                completion: @escaping (Result<Bool, Error>) -> ()) {
         
+        let data = LoginRequestData(grantType: "password",
+                                    email: email,
+                                    password: password,
+                                    clientId: clientId,
+                                    clientSecret: clientSecret)
+        loader.load(request: loginRequest(withData: data)) { _ in }
+        
+    }
+    
+    private func loginRequest(withData data: LoginRequestData) -> URLRequest {
+        let url = URL(string: "\(baseURL)/api/v1/oauth/token")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+        request.httpBody = try? encoder.encode(data)
+        return request
+    }
+    
+    private struct LoginRequestData: Codable {
+        let grantType: String
+        let email: String
+        let password: String
+        let clientId: String
+        let clientSecret: String
     }
     
 }
@@ -47,11 +81,24 @@ class AuthServiceTests: XCTestCase {
         XCTAssertEqual(spy.messages.count, 0)
     }
     
+    func test_login_requestsLoader() {
+        let (spy, sut) = makeSUT()
+        sut.login(withEmail: "", andPassword: "") { _ in }
+        XCTAssertEqual(spy.messages.count, 1)
+    }
+    
     // MARK: - helpers
     
-    func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (RequestLoaderSpy, AuthService) {
+    func makeSUT(baseURL: String = "https://any-url.com",
+                 clientId: String = "id",
+                 clientSecret: String = "secret",
+                 file: StaticString = #filePath,
+                 line: UInt = #line) -> (RequestLoaderSpy, AuthService) {
         let spy = RequestLoaderSpy()
-        let sut = AuthService(loader: spy)
+        let sut = AuthService(loader: spy,
+                              baseURL: baseURL,
+                              clientId: clientId,
+                              clientSecret: clientSecret)
         trackForMemoryLeak(spy)
         trackForMemoryLeak(sut)
         return (spy, sut)
