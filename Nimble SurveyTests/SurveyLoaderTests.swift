@@ -181,6 +181,17 @@ class SurveyLoaderTests: XCTestCase {
         }
     }
     
+    func test_load_doesNotCallCompletionAfterObjectDeallocated() {
+        let spy = RequestLoaderSpy()
+        var sut: SurveyLoader? = SurveyLoader(loader: spy)
+        sut?.load(page: 1, size: 10, tokenType: "", accessToken: "") { _ in
+            XCTFail()
+        }
+        
+        sut = nil
+        spy.completeLoad(with: .success(sampleSurveyListData()))
+    }
+    
     // MARK: - helpers
     
     func makeSUT(file: StaticString = #filePath,
