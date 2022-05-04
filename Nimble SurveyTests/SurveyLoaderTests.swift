@@ -133,6 +133,18 @@ class SurveyLoaderTests: XCTestCase {
         }
     }
     
+    func test_load_failsOnInvalidData() {
+        let (spy, sut) = makeSUT()
+        expect(sut,
+               toLoadPage: 1,
+               withSize: 10,
+               tokenType: "token",
+               accessToken: "token",
+               withResult: .failure(anyNSError())) {
+            spy.completeLoad(with: .success(Data()))
+        }
+    }
+    
     // MARK: - helpers
     
     func makeSUT(file: StaticString = #filePath,
