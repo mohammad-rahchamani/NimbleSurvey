@@ -37,7 +37,7 @@ public struct SurveyAttributes: Equatable, Codable {
 public struct Survey: Equatable, Codable {
     let id: String
     let type: String
-    let attibutes: SurveyAttributes
+    let attributes: SurveyAttributes
     let relationships: SurveyRelationship
 }
 
@@ -58,10 +58,29 @@ public class SurveyLoader {
         loader.load(request: surveyListRequest(page: page,
                                                size: size,
                                                tokenType: tokenType,
-                                               accessToken: accessToken)) { result in
-            completion(.failure(NSError(domain: "", code: 1, userInfo: nil)))
+                                               accessToken: accessToken)) { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .failure(let error):
+                completion(.failure(SurveyLoaderError.loaderError(error)))
+            case .success(let data):
+                completion(self.parseSurveyList(data))
+            }
+            
         }
         
+    }
+    
+    private func parseSurveyList(_ data: Data) -> Result<[Survey], Error> {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        do {
+            let object = try decoder.decode(SurveyResponse.self, from: data)
+            return .success(object.data)
+        } catch {
+            print(error)
+            return .failure(SurveyLoaderError.invalidData)
+        }
     }
     
     private func surveyListRequest(page: Int,
@@ -80,6 +99,11 @@ public class SurveyLoader {
         request.allHTTPHeaderFields = headers
         request.httpMethod = "GET"
         return request
+    }
+    
+    enum SurveyLoaderError: Error {
+        case loaderError(Error)
+        case invalidData
     }
     
     struct ResponseMetadata: Codable {
@@ -145,6 +169,18 @@ class SurveyLoaderTests: XCTestCase {
         }
     }
     
+    func test_load_deliversLoaderData() {
+        let (spy, sut) = makeSUT()
+        expect(sut,
+               toLoadPage: 1,
+               withSize: 10,
+               tokenType: "token",
+               accessToken: "token",
+               withResult: .success(sampleSurveyList())) {
+            spy.completeLoad(with: .success(sampleSurveyListData()))
+        }
+    }
+    
     // MARK: - helpers
     
     func makeSUT(file: StaticString = #filePath,
@@ -184,6 +220,70 @@ class SurveyLoaderTests: XCTestCase {
         action()
         
         wait(for: [exp], timeout: 1)
+    }
+ 
+    func sampleSurveyListData() -> Data {
+        let data = """
+            {
+              "data": [
+                {
+                  "id": "d5de6a8f8f5f1cfe51bc",
+                  "type": "survey",
+                  "attributes": {
+                    "title": "Scarlett Bangkok",
+                    "description": "We'd love ot hear from you!",
+                    "thank_email_above_threshold": "sample email above",
+                    "thank_email_below_threshold": "sample email below",
+                    "is_active": true,
+                    "cover_image_url": "https://dhdbhh0jsld0o.cloudfront.net/m/1ea51560991bcb7d00d0_",
+                    "created_at": "2017-01-23T07:48:12.991Z",
+                    "active_at": "2015-10-08T07:04:00.000Z",
+                    "inactive_at": null,
+                    "survey_type": "Restaurant"
+                  },
+                  "relationships": {
+                    "questions": {
+                      "data": [
+                        {
+                          "id": "d3afbcf2b1d60af845dc",
+                          "type": "question"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "meta": {
+                "page": 1,
+                "pages": 10,
+                "page_size": 2,
+                "records": 20
+              }
+            }
+
+            """
+        
+        return data.data(using: .utf8)!
+    }
+    
+    func sampleSurveyList() -> [Survey] {
+        [
+            Survey(id: "d5de6a8f8f5f1cfe51bc",
+                   type: "survey",
+                   attributes: SurveyAttributes(title: "Scarlett Bangkok",
+                                               description: "We'd love ot hear from you!",
+                                               thankEmailAboveThreshold: "sample email above",
+                                               thankEmailBelowThreshold: "sample email below",
+                                               isActive: true,
+                                               coverImageUrl: "https://dhdbhh0jsld0o.cloudfront.net/m/1ea51560991bcb7d00d0_",
+                                               createdAt: "2017-01-23T07:48:12.991Z",
+                                               activeAt: "2015-10-08T07:04:00.000Z",
+                                               inactiveAt: nil,
+                                               surveyType: "Restaurant"),
+                   relationships: SurveyRelationship(questions: SurveyQuestions(data: [
+                    SurveyQuestion(id: "d3afbcf2b1d60af845dc", type: "question")
+                   ])))
+        ]
     }
     
 }
