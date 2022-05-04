@@ -235,6 +235,55 @@ class AuthServiceTests: XCTestCase {
         spy.completeLoad(with: .success(sampleForgotPasswordData()))
     }
     
+    // MARK: - refresh token
+    
+    func test_refreshToken_requestsLoader() {
+        let url = "https:/any-url.com"
+        let (spy, sut) = makeSUT(baseURL: url)
+        
+        sut.refreshToken(token: "") { _ in }
+        
+        let expectedURL = URL(string: "\(url)/api/v1/oauth/token")!
+        
+        XCTAssertEqual(spy.messages.count, 1)
+        let capturedRequest = spy.messages.keys.first!
+        XCTAssertEqual(capturedRequest.url, expectedURL)
+        XCTAssertEqual(capturedRequest.httpMethod, "POST")
+        XCTAssertNotNil(capturedRequest.httpBody)
+    }
+    
+    func test_refreshToken_failsOnLoaderError() {
+        let (spy, sut) = makeSUT()
+        expect(sut,
+               toRefreshToken: "token",
+               withResult: .failure(anyNSError())) {
+            spy.completeLoad(with: .failure(anyNSError()))
+        }
+    }
+    
+    func test_refreshToken_deliversSuccessOnLoaderData() {
+        let (spy, sut) = makeSUT()
+        expect(sut,
+               toRefreshToken: "token",
+               withResult: .success(sampleAuthToken())) {
+            spy.completeLoad(with: .success(sampleAuthData()))
+        }
+    }
+    
+    func test_refreshToken_doesNotCallCompletionAfterObjectDeallocated() {
+        let spy = RequestLoaderSpy()
+        var sut: AuthService? = AuthService(loader: spy,
+                                            baseURL: "https://any-url.com",
+                                            clientId: "",
+                                            clientSecret: "")
+        sut?.refreshToken(token: "token"){ _ in
+            XCTFail()
+        }
+        
+        sut = nil
+        spy.completeLoad(with: .success(sampleAuthData()))
+    }
+    
     // MARK: - helpers
     
     func makeSUT(baseURL: String = "https://some-url.com",
@@ -337,6 +386,30 @@ class AuthServiceTests: XCTestCase {
                 line: UInt = #line) {
         let exp = XCTestExpectation(description: "waiting for forgot password completion")
         sut.forgotPassword(email: email) { result in
+            switch (result, expectedResult) {
+            case (.failure, .failure):
+                ()
+            case (.success(let data), .success(let expectedData)):
+                XCTAssertEqual(data, expectedData, file: file, line: line)
+            default:
+                XCTFail(file: file, line: line)
+            }
+            exp.fulfill()
+        }
+        
+        action()
+        
+        wait(for: [exp], timeout: 1)
+    }
+    
+    func expect(_ sut: AuthService,
+                toRefreshToken token: String,
+                withResult expectedResult: Result<AuthToken, Error>,
+                executing action: () -> (),
+                file: StaticString = #filePath,
+                line: UInt = #line) {
+        let exp = XCTestExpectation(description: "waiting for refresh token completion")
+        sut.refreshToken(token: token) { result in
             switch (result, expectedResult) {
             case (.failure, .failure):
                 ()
