@@ -173,6 +173,15 @@ class AuthHandlerTests: XCTestCase {
         XCTAssertEqual(storeSpy.messages, [TokenStoreSpy.Message.delete])
     }
     
+    func test_logout_failsOnLogoutError() {
+        let (serviceSpy, _, sut) = makeSUT()
+        expect(sut,
+               toLogoutToken: "token",
+               withResult: .failure(anyNSError())) {
+            serviceSpy.completeLogout(withResult: .failure(anyNSError()))
+        }
+    }
+    
     // MARK: - helpers
     
     func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (AuthServiceSpy, TokenStoreSpy, AuthHandler) {
@@ -221,6 +230,28 @@ class AuthHandlerTests: XCTestCase {
         sut.register(withEmail: email,
                      password: password,
                      passwordConfirmation: confirmation) { result in
+            switch (result, expectedResult) {
+            case (.failure, .failure):
+                ()
+            case (.success, .success):
+                ()
+            default:
+                XCTFail(file: file, line: line)
+            }
+            exp.fulfill()
+        }
+        action()
+        wait(for: [exp], timeout: 1)
+    }
+    
+    func expect(_ sut: AuthHandler,
+                toLogoutToken token: String,
+                withResult expectedResult: Result<(), Error>,
+                executing action: () -> (),
+                file: StaticString = #filePath,
+                line: UInt = #line) {
+        let exp = XCTestExpectation(description: "waiting for logout completion")
+        sut.logout(token: token) { result in
             switch (result, expectedResult) {
             case (.failure, .failure):
                 ()
