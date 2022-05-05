@@ -8,9 +8,10 @@
 import Foundation
 import Nimble_Survey
 
-class AuthServiceSpy: AuthService {
+class AuthServiceSpy: AuthHandler {
     
     private(set) var messages: [Message] = []
+    private var stub: AuthToken?
     
     private var loginCompletions: [(Result<AuthToken, Error>) -> ()] = []
     private var registerCompletions: [(Result<(), Error>) -> ()] = []
@@ -24,8 +25,17 @@ class AuthServiceSpy: AuthService {
         case logout(token: String)
         case forgotPassword(email: String)
         case refreshToken(token: String)
+        case token
     }
     
+    func stub(_ token: AuthToken?) {
+        self.stub = token
+    }
+    
+    func token() -> AuthToken? {
+        messages.append(.token)
+        return stub
+    }
     
     func login(withEmail email: String,
                andPassword password: String,

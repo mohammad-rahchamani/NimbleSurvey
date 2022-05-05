@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class AuthServiceWithStore: AuthService {
+public class AuthServiceWithStore: AuthHandler {
     
     private let service: AuthService
     private let store: TokenStore
@@ -16,6 +16,11 @@ public class AuthServiceWithStore: AuthService {
         self.service = service
         self.store = store
     }
+    
+    public func token() -> AuthToken? {
+        store.load()
+    }
+    
     public func login(withEmail email: String,
                       andPassword password: String,
                       completion: @escaping (Result<AuthToken, Error>) -> ()) {

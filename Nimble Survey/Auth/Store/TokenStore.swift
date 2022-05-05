@@ -7,6 +7,14 @@
 
 import Foundation
 
+public typealias AuthHandler = TokenProvider & AuthService
+
+public protocol TokenProvider {
+    
+    func token() -> AuthToken?
+    
+}
+
 public protocol TokenStore {
     
     func load() -> AuthToken?

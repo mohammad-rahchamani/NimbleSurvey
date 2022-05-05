@@ -11,18 +11,25 @@ import Nimble_Survey
 public class SurveyLoaderWithAuth: SurveyLoader {
     
     private let loader: SurveyLoader
-    private let authService: AuthService
+    private let authHandler: AuthHandler
     
-    public init(loader: SurveyLoader, authService: AuthService) {
+    public init(loader: SurveyLoader, authHandler: AuthHandler) {
         self.loader = loader
-        self.authService = authService
+        self.authHandler = authHandler
     }
     
-    public func load(page: Int, size: Int, tokenType: String, accessToken: String, completion: @escaping (Result<[Survey], Error>) -> ()) {
+    public func load(page: Int,
+                     size: Int,
+                     tokenType: String,
+                     accessToken: String,
+                     completion: @escaping (Result<[Survey], Error>) -> ()) {
         
     }
     
-    public func getDetails(forSurvey id: String, tokenType: String, accessToken: String, completion: @escaping (Result<[SurveyDetail], Error>) -> ()) {
+    public func getDetails(forSurvey id: String,
+                           tokenType: String,
+                           accessToken: String,
+                           completion: @escaping (Result<[SurveyDetail], Error>) -> ()) {
         
     }
 }
@@ -76,11 +83,28 @@ class SurveyLoaderSpy: SurveyLoader {
 class SurveyLoaderWithAuthTests: XCTestCase {
 
     func test_init_doesNotMessageLoaderAndService() {
-        let loaderSpy = SurveyLoaderSpy()
-        let serviceSpy = AuthServiceSpy()
-        let sut = SurveyLoaderWithAuth(loader: loaderSpy, authService: serviceSpy)
+        let (loaderSpy, serviceSpy, _) = makeSUT()
         XCTAssertEqual(loaderSpy.messages, [])
         XCTAssertEqual(serviceSpy.messages, [])
+    }
+    
+    func test_load_doesNotMessageLoaderAndService() {
+        let (loaderSpy, serviceSpy, sut) = makeSUT()
+        XCTAssertEqual(loaderSpy.messages, [])
+        XCTAssertEqual(serviceSpy.messages, [])
+    }
+    
+    
+    // MARK: - helpers
+    func makeSUT(file: StaticString = #filePath,
+                 line: UInt = #line) -> (SurveyLoaderSpy, AuthServiceSpy, SurveyLoaderWithAuth) {
+        let loaderSpy = SurveyLoaderSpy()
+        let serviceSpy = AuthServiceSpy()
+        let sut = SurveyLoaderWithAuth(loader: loaderSpy, authHandler: serviceSpy)
+        trackForMemoryLeak(loaderSpy, file: file, line: line)
+        trackForMemoryLeak(serviceSpy, file: file, line: line)
+        trackForMemoryLeak(sut, file: file, line: line)
+        return(loaderSpy, serviceSpy, sut)
     }
 
 }
