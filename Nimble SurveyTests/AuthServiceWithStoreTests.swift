@@ -1,5 +1,5 @@
 //
-//  AuthHandlerTests.swift
+//  AuthServiceWithStoreTests.swift
 //  Nimble SurveyTests
 //
 //  Created by Mohammad Rahchamani on 5/5/22.
@@ -8,61 +8,8 @@
 import XCTest
 import Nimble_Survey
 
-public class AuthHandler: AuthService {
-    
-    private let service: AuthService
-    private let store: TokenStore
-    
-    public init(service: AuthService, store: TokenStore) {
-        self.service = service
-        self.store = store
-    }
-    public func login(withEmail email: String,
-                      andPassword password: String,
-                      completion: @escaping (Result<AuthToken, Error>) -> ()) {
-        service.login(withEmail: email,
-                      andPassword: password) { [weak self] result in
-            guard let self = self else { return }
-            if let token = try? result.get() {
-                self.store.save(token: token)
-            }
-            completion(result)
-        }
-    }
-    
-    public func register(withEmail email: String,
-                         password: String, passwordConfirmation: String,
-                         completion: @escaping (Result<(), Error>) -> ()) {
-        service.register(withEmail: email,
-                         password: password,
-                         passwordConfirmation: passwordConfirmation,
-                         completion: completion)
-    }
-    
-    public func logout(token: String, completion: @escaping (Result<(), Error>) -> ()) {
-        store.delete()
-        service.logout(token: token, completion: completion)
-    }
-    
-    public func forgotPassword(email: String, completion: @escaping (Result<String, Error>) -> ()) {
-        service.forgotPassword(email: email,
-                               completion: completion)
-    }
-    
-    public func refreshToken(token: String, completion: @escaping (Result<AuthToken, Error>) -> ()) {
-        service.refreshToken(token: token) { [weak self] result in
-            guard let self = self else { return }
-            if let token = try? result.get() {
-                self.store.save(token: token)
-            }
-            completion(result)
-        }
-    }
-    
-    
-}
 
-class AuthHandlerTests: XCTestCase {
+class AuthServiceWithStoreTests: XCTestCase {
     
     func test_init_doesNotMessageServiceAndStore() {
         let (serviceSpy, storeSpy, _) = makeSUT()
@@ -270,17 +217,17 @@ class AuthHandlerTests: XCTestCase {
     
     // MARK: - helpers
     
-    func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (AuthServiceSpy, TokenStoreSpy, AuthHandler) {
+    func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (AuthServiceSpy, TokenStoreSpy, AuthServiceWithStore) {
         let serviceSpy = AuthServiceSpy()
         let storeSpy = TokenStoreSpy()
-        let sut = AuthHandler(service: serviceSpy, store: storeSpy)
+        let sut = AuthServiceWithStore(service: serviceSpy, store: storeSpy)
         trackForMemoryLeak(serviceSpy, file: file, line: line)
         trackForMemoryLeak(storeSpy, file: file, line: line)
         trackForMemoryLeak(sut, file: file, line: line)
         return (serviceSpy, storeSpy, sut)
     }
     
-    func expect(_ sut: AuthHandler,
+    func expect(_ sut: AuthServiceWithStore,
                 toLoginWithEmail email: String,
                 andPassword password: String,
                 withResult expectedResult: Result<AuthToken, Error>,
@@ -304,7 +251,7 @@ class AuthHandlerTests: XCTestCase {
         wait(for: [exp], timeout: 1)
     }
     
-    func expect(_ sut: AuthHandler,
+    func expect(_ sut: AuthServiceWithStore,
                 toRegisterWithEmail email: String,
                 password: String,
                 andConfirmation confirmation: String,
@@ -330,7 +277,7 @@ class AuthHandlerTests: XCTestCase {
         wait(for: [exp], timeout: 1)
     }
     
-    func expect(_ sut: AuthHandler,
+    func expect(_ sut: AuthServiceWithStore,
                 toLogoutToken token: String,
                 withResult expectedResult: Result<(), Error>,
                 executing action: () -> (),
@@ -352,7 +299,7 @@ class AuthHandlerTests: XCTestCase {
         wait(for: [exp], timeout: 1)
     }
     
-    func expect(_ sut: AuthHandler,
+    func expect(_ sut: AuthServiceWithStore,
                 toForgotPasswordFor email: String,
                 withResult expectedResult: Result<String, Error>,
                 executing action: () -> (),
@@ -374,7 +321,7 @@ class AuthHandlerTests: XCTestCase {
         wait(for: [exp], timeout: 1)
     }
     
-    func expect(_ sut: AuthHandler,
+    func expect(_ sut: AuthServiceWithStore,
                 toRefreshToken token: String,
                 withResult expectedResult: Result<AuthToken, Error>,
                 executing action: () -> (),
