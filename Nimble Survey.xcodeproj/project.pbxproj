@@ -41,6 +41,8 @@
 		B5F6BB982823D98000029D55 /* SurveyLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB972823D98000029D55 /* SurveyLoader.swift */; };
 		B5F6BB9D2823DA2900029D55 /* SurveyLoaderWithAuthTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB9C2823DA2900029D55 /* SurveyLoaderWithAuthTests.swift */; };
 		B5F6BB9F2823FFE200029D55 /* SurveyLoaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB9E2823FFE200029D55 /* SurveyLoaderTests.swift */; };
+		B5F6BBA128241F7800029D55 /* SurveyLoaderWithAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BBA028241F7800029D55 /* SurveyLoaderWithAuth.swift */; };
+		B5F6BBA328241FBA00029D55 /* SurveyLoaderSpy.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BBA228241FBA00029D55 /* SurveyLoaderSpy.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -100,6 +102,8 @@
 		B5F6BB972823D98000029D55 /* SurveyLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyLoader.swift; sourceTree = "<group>"; };
 		B5F6BB9C2823DA2900029D55 /* SurveyLoaderWithAuthTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyLoaderWithAuthTests.swift; sourceTree = "<group>"; };
 		B5F6BB9E2823FFE200029D55 /* SurveyLoaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyLoaderTests.swift; sourceTree = "<group>"; };
+		B5F6BBA028241F7800029D55 /* SurveyLoaderWithAuth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyLoaderWithAuth.swift; sourceTree = "<group>"; };
+		B5F6BBA228241FBA00029D55 /* SurveyLoaderSpy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyLoaderSpy.swift; sourceTree = "<group>"; };
 		DC78CCCBAC8544093EC7B27E /* Pods_Nimble_Survey.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Nimble_Survey.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -214,6 +218,7 @@
 				B5F6BB73282292F900029D55 /* RequestLoaderSpy.swift */,
 				B5F6BB9128239D9700029D55 /* AuthServiceSpy.swift */,
 				B5F6BB9328239DBC00029D55 /* TokenStoreSpy.swift */,
+				B5F6BBA228241FBA00029D55 /* SurveyLoaderSpy.swift */,
 			);
 			path = Helper;
 			sourceTree = "<group>";
@@ -250,6 +255,7 @@
 				B5F6BB7A2822F44900029D55 /* Model */,
 				B5F6BB7B2822F45F00029D55 /* RemoteSurveyLoader.swift */,
 				B5F6BB972823D98000029D55 /* SurveyLoader.swift */,
+				B5F6BBA028241F7800029D55 /* SurveyLoaderWithAuth.swift */,
 			);
 			path = Survey;
 			sourceTree = "<group>";
@@ -491,6 +497,7 @@
 				B5F6BB3628211E6100029D55 /* ViewController.swift in Sources */,
 				B5F6BB982823D98000029D55 /* SurveyLoader.swift in Sources */,
 				B5F6BB3228211E6100029D55 /* AppDelegate.swift in Sources */,
+				B5F6BBA128241F7800029D55 /* SurveyLoaderWithAuth.swift in Sources */,
 				B5F6BB802822F48B00029D55 /* SurveyDetail.swift in Sources */,
 				B5F6BB3428211E6100029D55 /* SceneDelegate.swift in Sources */,
 				B5F6BB892823952F00029D55 /* TokenStore.swift in Sources */,
@@ -519,6 +526,7 @@
 				B5F6BB8D2823984100029D55 /* AuthServiceWithStoreTests.swift in Sources */,
 				B5F6BB9228239D9700029D55 /* AuthServiceSpy.swift in Sources */,
 				B5F6BB6E2822654000029D55 /* XCTestCase+Extensions.swift in Sources */,
+				B5F6BBA328241FBA00029D55 /* SurveyLoaderSpy.swift in Sources */,
 				B5F6BB652821414700029D55 /* URLProtocolStub.swift in Sources */,
 				B5F6BB9428239DBC00029D55 /* TokenStoreSpy.swift in Sources */,
 				B5F6BB6C2821433E00029D55 /* AuthServiceTests.swift in Sources */,
