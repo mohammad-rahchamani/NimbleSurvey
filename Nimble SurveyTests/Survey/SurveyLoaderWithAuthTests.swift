@@ -23,7 +23,7 @@ public class SurveyLoaderWithAuth: SurveyLoader {
                      tokenType: String,
                      accessToken: String,
                      completion: @escaping (Result<[Survey], Error>) -> ()) {
-        
+        let currentToken = authHandler.token()
     }
     
     public func getDetails(forSurvey id: String,
@@ -88,10 +88,11 @@ class SurveyLoaderWithAuthTests: XCTestCase {
         XCTAssertEqual(serviceSpy.messages, [])
     }
     
-    func test_load_doesNotMessageLoaderAndService() {
+    func test_load_checksCurrentTokenBeforeMakingRequest() {
         let (loaderSpy, serviceSpy, sut) = makeSUT()
+        sut.load(page: 1, size: 1, tokenType: "token", accessToken: "token") { _ in }
         XCTAssertEqual(loaderSpy.messages, [])
-        XCTAssertEqual(serviceSpy.messages, [])
+        XCTAssertEqual(serviceSpy.messages, [.token])
     }
     
     
