@@ -23,7 +23,21 @@ public class SurveyLoaderWithAuth: SurveyLoader {
                      tokenType: String,
                      accessToken: String,
                      completion: @escaping (Result<[Survey], Error>) -> ()) {
-        let currentToken = authHandler.token()
+        guard let currentToken = authHandler.token() else {
+            completion(.failure(LoaderWithAuthError.noToken))
+            return
+        }
+        guard isValid(token: currentToken) else {
+            authHandler.refreshToken(token: currentToken.refreshToken) { result in
+                
+            }
+            return
+        }
+    }
+    
+    private func isValid(token: AuthToken) -> Bool {
+        let expirationDate = Date(timeIntervalSinceReferenceDate: token.createdAt).addingTimeInterval(token.expiresIn)
+        return expirationDate > Date()
     }
     
     public func getDetails(forSurvey id: String,
@@ -31,6 +45,10 @@ public class SurveyLoaderWithAuth: SurveyLoader {
                            accessToken: String,
                            completion: @escaping (Result<[SurveyDetail], Error>) -> ()) {
         
+    }
+    
+    private enum LoaderWithAuthError: Error {
+        case noToken
     }
 }
 
@@ -80,7 +98,7 @@ class SurveyLoaderSpy: SurveyLoader {
     
 }
 
-class SurveyLoaderWithAuthTests: XCTestCase {
+class SurveyLoaderWithAuthTests: SurveyLoaderTests {
 
     func test_init_doesNotMessageLoaderAndService() {
         let (loaderSpy, serviceSpy, _) = makeSUT()
@@ -95,6 +113,26 @@ class SurveyLoaderWithAuthTests: XCTestCase {
         XCTAssertEqual(serviceSpy.messages, [.token])
     }
     
+    func test_load_failsWithoutToken() {
+        let (_, serviceSpy, sut) = makeSUT()
+        serviceSpy.stub(nil)
+        expect(sut,
+               toLoadPage: 1,
+               withSize: 5,
+               tokenType: "bearer",
+               accessToken: "token",
+               withResult: .failure(anyNSError())) {
+        }
+    }
+    
+    func test_load_refreshesTokenOnExpiredToken() {
+        let (_, serviceSpy, sut) = makeSUT()
+        let expectedToken = expiredToken()
+        serviceSpy.stub(expectedToken)
+        sut.load(page: 1, size: 1, tokenType: "", accessToken: "") { _ in }
+        XCTAssertEqual(serviceSpy.messages, [.token, .refreshToken(token: expectedToken.refreshToken)])
+    }
+    
     
     // MARK: - helpers
     func makeSUT(file: StaticString = #filePath,
@@ -106,6 +144,14 @@ class SurveyLoaderWithAuthTests: XCTestCase {
         trackForMemoryLeak(serviceSpy, file: file, line: line)
         trackForMemoryLeak(sut, file: file, line: line)
         return(loaderSpy, serviceSpy, sut)
+    }
+    
+    func expiredToken() -> AuthToken {
+        AuthToken(accessToken: "access",
+                  refreshToken: "refresh",
+                  tokenType: "bearer",
+                  expiresIn: 1,
+                  createdAt: 0)
     }
 
 }

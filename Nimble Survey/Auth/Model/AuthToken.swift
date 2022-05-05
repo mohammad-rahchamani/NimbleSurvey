@@ -8,11 +8,11 @@
 import Foundation
 public struct AuthToken: Equatable, Codable {
     
-    let accessToken: String
-    let refreshToken: String
-    let tokenType: String
-    let expiresIn: Double
-    let createdAt: Double
+    public let accessToken: String
+    public let refreshToken: String
+    public let tokenType: String
+    public let expiresIn: Double
+    public let createdAt: Double
     
     public init(accessToken: String, refreshToken: String, tokenType: String, expiresIn: Double, createdAt: Double) {
         self.accessToken = accessToken
