@@ -39,6 +39,7 @@
 		B5F6BB9428239DBC00029D55 /* TokenStoreSpy.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB9328239DBC00029D55 /* TokenStoreSpy.swift */; };
 		B5F6BB962823D81F00029D55 /* AuthServiceWithStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB952823D81F00029D55 /* AuthServiceWithStore.swift */; };
 		B5F6BB982823D98000029D55 /* SurveyLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB972823D98000029D55 /* SurveyLoader.swift */; };
+		B5F6BB9D2823DA2900029D55 /* SurveyLoaderWithAuthTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB9C2823DA2900029D55 /* SurveyLoaderWithAuthTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -96,6 +97,7 @@
 		B5F6BB9328239DBC00029D55 /* TokenStoreSpy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenStoreSpy.swift; sourceTree = "<group>"; };
 		B5F6BB952823D81F00029D55 /* AuthServiceWithStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthServiceWithStore.swift; sourceTree = "<group>"; };
 		B5F6BB972823D98000029D55 /* SurveyLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyLoader.swift; sourceTree = "<group>"; };
+		B5F6BB9C2823DA2900029D55 /* SurveyLoaderWithAuthTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyLoaderWithAuthTests.swift; sourceTree = "<group>"; };
 		DC78CCCBAC8544093EC7B27E /* Pods_Nimble_Survey.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Nimble_Survey.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -293,6 +295,7 @@
 			isa = PBXGroup;
 			children = (
 				B5F6BB7728229C0200029D55 /* RemoteSurveyLoaderTests.swift */,
+				B5F6BB9C2823DA2900029D55 /* SurveyLoaderWithAuthTests.swift */,
 			);
 			path = Survey;
 			sourceTree = "<group>";
@@ -505,6 +508,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B5F6BB6228211EB100029D55 /* NetworkHandlerTests.swift in Sources */,
+				B5F6BB9D2823DA2900029D55 /* SurveyLoaderWithAuthTests.swift in Sources */,
 				B5F6BB7828229C0200029D55 /* RemoteSurveyLoaderTests.swift in Sources */,
 				B5F6BB74282292F900029D55 /* RequestLoaderSpy.swift in Sources */,
 				B5F6BB672821416200029D55 /* AsyncURLProtocolStub.swift in Sources */,
