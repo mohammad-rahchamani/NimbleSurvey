@@ -82,6 +82,25 @@ class AuthHandlerTests: XCTestCase {
         XCTAssertTrue(storeSpy.messages.isEmpty)
     }
     
+    func test_login_failsOnLoginError() {
+        let (serviceSpy, _, sut) = makeSUT()
+        
+        let exp = XCTestExpectation(description: "waiting for login completion")
+        sut.login(withEmail: "",
+                  andPassword: "") { result in
+            switch result {
+            case .failure:
+                ()
+            case .success:
+                XCTFail()
+            }
+            exp.fulfill()
+        }
+        
+        serviceSpy.completeLogin(withResult: .failure(anyNSError()))
+        wait(for: [exp], timeout: 1)
+    }
+    
     // MARK: - helpers
     
     func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (AuthServiceSpy, TokenStoreSpy, AuthHandler) {
