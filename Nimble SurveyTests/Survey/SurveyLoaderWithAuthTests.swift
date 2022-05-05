@@ -21,38 +21,28 @@ public class SurveyLoaderWithAuth {
     public func load(page: Int,
                      size: Int,
                      completion: @escaping (Result<[Survey], Error>) -> ()) {
-        guard let currentToken = authHandler.token() else {
-            completion(.failure(LoaderWithAuthError.noToken))
-            return
-        }
-        guard isValid(token: currentToken) else {
-            refreshTokenAndLoad(currentToken.refreshToken,
+        validateToken(invalidTokenClosure: { token in
+            refreshTokenAndLoad(token.refreshToken,
                                 page: page,
                                 size: size,
                                 completion: completion)
-            return
-        }
-        self.loader.load(page: page,
-                         size: size,
-                         tokenType: currentToken.tokenType,
-                         accessToken: currentToken.accessToken,
-                         completion: completion)
+        }, validTokenClosure: { token in
+            self.loader.load(page: page,
+                             size: size,
+                             tokenType: token.tokenType,
+                             accessToken: token.accessToken,
+                             completion: completion)
+        }, completion: completion)
     }
     
-    private func refreshTokenAndLoad(_ refreshToken: String,
+    private func refreshTokenAndLoad(_ token: String,
                                      page: Int,
                                      size: Int,
                                      completion: @escaping (Result<[Survey], Error>) -> ()) {
-        authHandler.refreshToken(token: refreshToken) { [weak self] result in
+        refreshToken(token, andExecute: { [weak self] in
             guard let self = self else { return }
-            guard (self.authHandler.token()) != nil else {
-                completion(.failure(LoaderWithAuthError.refreshTokenError))
-                return
-            }
-            self.load(page: page,
-                      size: size,
-                      completion: completion)
-        }
+            self.load(page: page, size: size, completion: completion)
+        }, completion: completion)
     }
     
     private func isValid(token: AuthToken) -> Bool {
@@ -62,10 +52,51 @@ public class SurveyLoaderWithAuth {
     
     public func getDetails(forSurvey id: String,
                            completion: @escaping (Result<[SurveyDetail], Error>) -> ()) {
+        
+        validateToken(invalidTokenClosure: { token in
+            refreshTokenAndGetDetails(token.refreshToken,
+                                      surveyId: id,
+                                      completion: completion)
+        }, validTokenClosure: { token in
+            
+        }, completion: completion)
+        
+    }
+    
+    private func refreshTokenAndGetDetails(_ token: String,
+                                           surveyId id: String ,
+                                           completion: @escaping (Result<[SurveyDetail], Error>) -> ()) {
+        refreshToken(token, andExecute: { [weak self] in
+            guard let self = self else { return }
+            self.getDetails(forSurvey: id, completion: completion)
+        }, completion: completion)
+    }
+    
+    private func refreshToken<T>(_ refreshToken: String,
+                                 andExecute action: @escaping () -> (),
+                                 completion: @escaping (Result<T, Error>) -> ()) {
+        authHandler.refreshToken(token: refreshToken) { [weak self] result in
+            guard let self = self else { return }
+            guard (self.authHandler.token()) != nil else {
+                completion(.failure(LoaderWithAuthError.refreshTokenError))
+                return
+            }
+            action()
+        }
+    }
+    
+    private func validateToken<T>(invalidTokenClosure: (AuthToken) -> (),
+                                  validTokenClosure: (AuthToken) -> (),
+                                  completion: @escaping (Result<[T], Error>) -> ()) {
         guard let currentToken = authHandler.token() else {
             completion(.failure(LoaderWithAuthError.noToken))
             return
         }
+        guard isValid(token: currentToken) else {
+            invalidTokenClosure(currentToken)
+            return
+        }
+        validTokenClosure(currentToken)
     }
     
     private enum LoaderWithAuthError: Error {
@@ -262,6 +293,14 @@ class SurveyLoaderWithAuthTests: SurveyLoaderTests {
         expect(sut,
                toGetDetailsFor: "",
                withResult: .failure(anyNSError())) { }
+    }
+    
+    func test_getDetails_refreshesTokenOnExpiredToken() {
+        let (_, serviceSpy, sut) = makeSUT()
+        let expectedToken = expiredToken()
+        serviceSpy.stub(expectedToken)
+        sut.getDetails(forSurvey: "") { _ in }
+        XCTAssertEqual(serviceSpy.messages, [.token, .refreshToken(token: expectedToken.refreshToken)])
     }
     
     // MARK: - helpers
