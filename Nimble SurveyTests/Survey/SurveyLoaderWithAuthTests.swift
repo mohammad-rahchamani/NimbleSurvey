@@ -303,6 +303,17 @@ class SurveyLoaderWithAuthTests: SurveyLoaderTests {
         XCTAssertEqual(serviceSpy.messages, [.token, .refreshToken(token: expectedToken.refreshToken)])
     }
     
+    func test_getDetails_failsOnRefreshTokenFailure() {
+        let (_, serviceSpy, sut) = makeSUT()
+        let oldToken = expiredToken()
+        serviceSpy.stub(oldToken)
+        expect(sut,
+               toGetDetailsFor: "id",
+               withResult: .failure(anyNSError())) {
+            serviceSpy.completeRefreshToken(withResult: .failure(anyNSError()))
+        }
+    }
+    
     // MARK: - helpers
     
     func makeSUT(file: StaticString = #filePath,
