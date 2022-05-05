@@ -342,6 +342,19 @@ class SurveyLoaderWithAuthTests: SurveyLoaderTests {
         }
     }
     
+    func test_getDetails_deliversDataOnRefreshedTokenAndLoaderResult() {
+        let (loaderSpy, serviceSpy, sut) = makeSUT()
+        let oldToken = expiredToken()
+        serviceSpy.stub(oldToken)
+        let expectedResult: [SurveyDetail] = sampleSurveyDetails()
+        expect(sut,
+               toGetDetailsFor: "id",
+               withResult: .success(expectedResult)) {
+            serviceSpy.completeRefreshToken(withResult: .success(freshToken()))
+            loaderSpy.completeGetDetails(withResult: .success(expectedResult))
+        }
+    }
+    
     // MARK: - helpers
     
     func makeSUT(file: StaticString = #filePath,
@@ -422,6 +435,33 @@ class SurveyLoaderWithAuthTests: SurveyLoaderTests {
                    relationships: SurveyRelationship(questions: SurveyQuestionsOrAnswers(data: [
                     SurveyRelationData(id: "d3afbcf2b1d60af845dc", type: "question")
                    ])))
+        ]
+    }
+    
+    func sampleSurveyDetails() -> [SurveyDetail] {
+        [
+            SurveyDetail(id: "d3afbcf2b1d60af845dc",
+                         type: "question",
+                         attributes: SurveyDetailAttributes(text: "text",
+                                                            helpText: nil,
+                                                            displayOrder: 0,
+                                                            shortText: "introduction",
+                                                            pick: "none",
+                                                            displayType: "intro",
+                                                            isMandatory: false,
+                                                            correctAnswerId: nil,
+                                                            facebookProfile: nil,
+                                                            twitterProfile: nil,
+                                                            imageUrl: "https://dhdbhh0jsld0o.cloudfront.net/m/2001ebbfdcbf6c00c757_",
+                                                            coverImageUrl: "https://dhdbhh0jsld0o.cloudfront.net/m/1ea51560991bcb7d00d0_",
+                                                            coverImageOpacity: 0.6,
+                                                            coverBackgroundColor: nil,
+                                                            isShareableOnFacebook: false,
+                                                            isShareableOnTwitter: false,
+                                                            fontFace: nil,
+                                                            fontSize: nil,
+                                                            tagList: ""),
+                         relationships: SurveyDetailRelationship(answers: SurveyQuestionsOrAnswers(data: [])))
         ]
     }
     
