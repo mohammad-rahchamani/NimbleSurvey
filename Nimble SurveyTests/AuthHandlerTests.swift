@@ -191,6 +191,37 @@ class AuthHandlerTests: XCTestCase {
         }
     }
     
+    // MARK: - forgot password
+    
+    func test_forgotPassword_requestsFromService() {
+        let (serviceSpy, storeSpy, sut) = makeSUT()
+        
+        let email = "email"
+        sut.forgotPassword(email: email) { _ in }
+        
+        XCTAssertEqual(serviceSpy.messages, [AuthServiceSpy.Message.forgotPassword(email: email)])
+        XCTAssertEqual(storeSpy.messages, [])
+    }
+    
+    func test_forgotPassword_failsOnLogoutError() {
+        let (serviceSpy, _, sut) = makeSUT()
+        expect(sut,
+               toForgotPasswordFor: "email",
+               withResult: .failure(anyNSError())) {
+            serviceSpy.completeForgotPassword(withResult: .failure(anyNSError()))
+        }
+    }
+    
+    func test_forgotPassword_deliversLogoutResult() {
+        let (serviceSpy, _, sut) = makeSUT()
+        let expectedText = "some text"
+        expect(sut,
+               toForgotPasswordFor: "email",
+               withResult: .success(expectedText)) {
+            serviceSpy.completeForgotPassword(withResult: .success(expectedText))
+        }
+    }
+    
     // MARK: - helpers
     
     func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (AuthServiceSpy, TokenStoreSpy, AuthHandler) {
@@ -266,6 +297,28 @@ class AuthHandlerTests: XCTestCase {
                 ()
             case (.success, .success):
                 ()
+            default:
+                XCTFail(file: file, line: line)
+            }
+            exp.fulfill()
+        }
+        action()
+        wait(for: [exp], timeout: 1)
+    }
+    
+    func expect(_ sut: AuthHandler,
+                toForgotPasswordFor email: String,
+                withResult expectedResult: Result<String, Error>,
+                executing action: () -> (),
+                file: StaticString = #filePath,
+                line: UInt = #line) {
+        let exp = XCTestExpectation(description: "waiting for forgot password completion")
+        sut.forgotPassword(email: email) { result in
+            switch (result, expectedResult) {
+            case (.failure, .failure):
+                ()
+            case (.success(let text), .success(let expectedText)):
+                XCTAssertEqual(text, expectedText, file: file, line: line)
             default:
                 XCTFail(file: file, line: line)
             }
