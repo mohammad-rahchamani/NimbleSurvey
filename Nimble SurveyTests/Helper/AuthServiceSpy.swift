@@ -74,6 +74,7 @@ class AuthServiceSpy: AuthHandler {
     }
     
     public func completeLogin(at index: Int = 0, withResult result: Result<AuthToken, Error>) {
+        self.stub = try? result.get()
         loginCompletions[index](result)
     }
     
@@ -82,6 +83,7 @@ class AuthServiceSpy: AuthHandler {
     }
     
     public func completeLogout(at index: Int = 0, withResult result: Result<(), Error>) {
+        self.stub = nil
         logoutCompletions[index](result)
     }
     
@@ -90,6 +92,7 @@ class AuthServiceSpy: AuthHandler {
     }
     
     public func completeRefreshToken(at index: Int = 0, withResult result: Result<AuthToken, Error>) {
+        self.stub = try? result.get()
         refreshTokenCompletions[index](result)
     }
     

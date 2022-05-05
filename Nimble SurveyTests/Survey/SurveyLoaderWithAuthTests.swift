@@ -8,7 +8,7 @@
 import XCTest
 import Nimble_Survey
 
-public class SurveyLoaderWithAuth: SurveyLoader {
+public class SurveyLoaderWithAuth {
     
     private let loader: SurveyLoader
     private let authHandler: AuthHandler
@@ -20,24 +20,28 @@ public class SurveyLoaderWithAuth: SurveyLoader {
     
     public func load(page: Int,
                      size: Int,
-                     tokenType: String,
-                     accessToken: String,
                      completion: @escaping (Result<[Survey], Error>) -> ()) {
         guard let currentToken = authHandler.token() else {
             completion(.failure(LoaderWithAuthError.noToken))
             return
         }
         guard isValid(token: currentToken) else {
-            authHandler.refreshToken(token: currentToken.refreshToken) { result in
-                switch result {
-                case .failure(let refreshError):
-                    completion(.failure(LoaderWithAuthError.refreshTokenError(refreshError)))
-                default:
-                    ()
+            authHandler.refreshToken(token: currentToken.refreshToken) { [unowned self] result in
+                guard (self.authHandler.token()) != nil else {
+                    completion(.failure(LoaderWithAuthError.refreshTokenError))
+                    return
                 }
+                self.load(page: page,
+                          size: size,
+                          completion: completion)
             }
             return
         }
+        self.loader.load(page: page,
+                         size: size,
+                         tokenType: currentToken.tokenType,
+                         accessToken: currentToken.accessToken,
+                         completion: completion)
     }
     
     private func isValid(token: AuthToken) -> Bool {
@@ -46,15 +50,13 @@ public class SurveyLoaderWithAuth: SurveyLoader {
     }
     
     public func getDetails(forSurvey id: String,
-                           tokenType: String,
-                           accessToken: String,
                            completion: @escaping (Result<[SurveyDetail], Error>) -> ()) {
         
     }
     
     private enum LoaderWithAuthError: Error {
         case noToken
-        case refreshTokenError(Error)
+        case refreshTokenError
     }
 }
 
@@ -114,7 +116,7 @@ class SurveyLoaderWithAuthTests: SurveyLoaderTests {
     
     func test_load_checksCurrentTokenBeforeMakingRequest() {
         let (loaderSpy, serviceSpy, sut) = makeSUT()
-        sut.load(page: 1, size: 1, tokenType: "token", accessToken: "token") { _ in }
+        sut.load(page: 1, size: 1) { _ in }
         XCTAssertEqual(loaderSpy.messages, [])
         XCTAssertEqual(serviceSpy.messages, [.token])
     }
@@ -125,8 +127,6 @@ class SurveyLoaderWithAuthTests: SurveyLoaderTests {
         expect(sut,
                toLoadPage: 1,
                withSize: 5,
-               tokenType: "bearer",
-               accessToken: "token",
                withResult: .failure(anyNSError())) {
         }
     }
@@ -135,7 +135,7 @@ class SurveyLoaderWithAuthTests: SurveyLoaderTests {
         let (_, serviceSpy, sut) = makeSUT()
         let expectedToken = expiredToken()
         serviceSpy.stub(expectedToken)
-        sut.load(page: 1, size: 1, tokenType: "", accessToken: "") { _ in }
+        sut.load(page: 1, size: 1) { _ in }
         XCTAssertEqual(serviceSpy.messages, [.token, .refreshToken(token: expectedToken.refreshToken)])
     }
     
@@ -146,15 +146,30 @@ class SurveyLoaderWithAuthTests: SurveyLoaderTests {
         expect(sut,
                toLoadPage: 1,
                withSize: 1,
-               tokenType: "type",
-               accessToken: "token",
                withResult: .failure(anyNSError())) {
             serviceSpy.completeRefreshToken(withResult: .failure(anyNSError()))
         }
     }
     
+    func test_load_loadsFromLoaderAfterRefreshingTokenOnExpiredToken() {
+        let (loaderSpy, serviceSpy, sut) = makeSUT()
+        let expectedToken = freshToken()
+        serviceSpy.stub(expiredToken())
+        let page = 1
+        let size = 5
+        sut.load(page: page,
+                 size: size) { _ in }
+        serviceSpy.completeRefreshToken(withResult: .success(expectedToken))
+        XCTAssertEqual(loaderSpy.messages, [.load(page: page,
+                                                  size: size,
+                                                  tokenType: expectedToken.tokenType,
+                                                  accessToken: expectedToken.accessToken)])
+        
+    }
+    
     
     // MARK: - helpers
+    
     func makeSUT(file: StaticString = #filePath,
                  line: UInt = #line) -> (SurveyLoaderSpy, AuthServiceSpy, SurveyLoaderWithAuth) {
         let loaderSpy = SurveyLoaderSpy()
@@ -164,6 +179,56 @@ class SurveyLoaderWithAuthTests: SurveyLoaderTests {
         trackForMemoryLeak(serviceSpy, file: file, line: line)
         trackForMemoryLeak(sut, file: file, line: line)
         return(loaderSpy, serviceSpy, sut)
+    }
+    
+    func expect(_ sut: SurveyLoaderWithAuth,
+                toLoadPage page: Int,
+                withSize size: Int,
+                withResult expectedResult: Result<[Survey], Error>,
+                executing action: () -> (),
+                file: StaticString = #filePath,
+                line: UInt = #line) {
+        let exp = XCTestExpectation(description: "waiting for load completion")
+        sut.load(page: page,
+                 size: size) { result in
+            switch (result, expectedResult) {
+            case (.failure, .failure):
+                ()
+            case (.success(let surveys), .success(let expectedSurveys)):
+                XCTAssertEqual(surveys, expectedSurveys, file: file, line: line)
+            default:
+                XCTFail(file: file, line: line)
+            }
+            exp.fulfill()
+        }
+        
+        action()
+        
+        wait(for: [exp], timeout: 1)
+    }
+    
+    func expect(_ sut: SurveyLoaderWithAuth,
+                toGetDetailsFor surveyId: String,
+                withResult expectedResult: Result<[SurveyDetail], Error>,
+                executing action: () -> (),
+                file: StaticString = #filePath,
+                line: UInt = #line) {
+        let exp = XCTestExpectation(description: "waiting for get details completion")
+        sut.getDetails(forSurvey: surveyId) { result in
+            switch (result, expectedResult) {
+            case (.failure, .failure):
+                ()
+            case (.success(let surveys), .success(let expectedSurveys)):
+                XCTAssertEqual(surveys, expectedSurveys, file: file, line: line)
+            default:
+                XCTFail(file: file, line: line)
+            }
+            exp.fulfill()
+        }
+        
+        action()
+        
+        wait(for: [exp], timeout: 1)
     }
     
     func expiredToken() -> AuthToken {
