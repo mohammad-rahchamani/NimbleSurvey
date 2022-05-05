@@ -29,7 +29,12 @@ public class SurveyLoaderWithAuth: SurveyLoader {
         }
         guard isValid(token: currentToken) else {
             authHandler.refreshToken(token: currentToken.refreshToken) { result in
-                
+                switch result {
+                case .failure(let refreshError):
+                    completion(.failure(LoaderWithAuthError.refreshTokenError(refreshError)))
+                default:
+                    ()
+                }
             }
             return
         }
@@ -49,6 +54,7 @@ public class SurveyLoaderWithAuth: SurveyLoader {
     
     private enum LoaderWithAuthError: Error {
         case noToken
+        case refreshTokenError(Error)
     }
 }
 
@@ -133,6 +139,20 @@ class SurveyLoaderWithAuthTests: SurveyLoaderTests {
         XCTAssertEqual(serviceSpy.messages, [.token, .refreshToken(token: expectedToken.refreshToken)])
     }
     
+    func test_load_failsOnRefreshTokenFailure() {
+        let (_, serviceSpy, sut) = makeSUT()
+        let oldToken = expiredToken()
+        serviceSpy.stub(oldToken)
+        expect(sut,
+               toLoadPage: 1,
+               withSize: 1,
+               tokenType: "type",
+               accessToken: "token",
+               withResult: .failure(anyNSError())) {
+            serviceSpy.completeRefreshToken(withResult: .failure(anyNSError()))
+        }
+    }
+    
     
     // MARK: - helpers
     func makeSUT(file: StaticString = #filePath,
@@ -152,6 +172,14 @@ class SurveyLoaderWithAuthTests: SurveyLoaderTests {
                   tokenType: "bearer",
                   expiresIn: 1,
                   createdAt: 0)
+    }
+    
+    func freshToken() -> AuthToken {
+        AuthToken(accessToken: "access",
+                  refreshToken: "refresh",
+                  tokenType: "bearer",
+                  expiresIn: 24*60*60,
+                  createdAt: Date().timeIntervalSince1970)
     }
 
 }
