@@ -26,15 +26,10 @@ public class SurveyLoaderWithAuth {
             return
         }
         guard isValid(token: currentToken) else {
-            authHandler.refreshToken(token: currentToken.refreshToken) { [unowned self] result in
-                guard (self.authHandler.token()) != nil else {
-                    completion(.failure(LoaderWithAuthError.refreshTokenError))
-                    return
-                }
-                self.load(page: page,
-                          size: size,
-                          completion: completion)
-            }
+            refreshTokenAndLoad(currentToken.refreshToken,
+                                page: page,
+                                size: size,
+                                completion: completion)
             return
         }
         self.loader.load(page: page,
@@ -42,6 +37,22 @@ public class SurveyLoaderWithAuth {
                          tokenType: currentToken.tokenType,
                          accessToken: currentToken.accessToken,
                          completion: completion)
+    }
+    
+    private func refreshTokenAndLoad(_ refreshToken: String,
+                                     page: Int,
+                                     size: Int,
+                                     completion: @escaping (Result<[Survey], Error>) -> ()) {
+        authHandler.refreshToken(token: refreshToken) { [weak self] result in
+            guard let self = self else { return }
+            guard (self.authHandler.token()) != nil else {
+                completion(.failure(LoaderWithAuthError.refreshTokenError))
+                return
+            }
+            self.load(page: page,
+                      size: size,
+                      completion: completion)
+        }
     }
     
     private func isValid(token: AuthToken) -> Bool {
