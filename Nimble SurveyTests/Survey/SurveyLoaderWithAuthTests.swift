@@ -330,6 +330,18 @@ class SurveyLoaderWithAuthTests: SurveyLoaderTests {
         
     }
     
+    func test_getDetails_failsOnRefreshedTokenAndGetDetailsFailure() {
+        let (loaderSpy, serviceSpy, sut) = makeSUT()
+        let oldToken = expiredToken()
+        serviceSpy.stub(oldToken)
+        expect(sut,
+               toGetDetailsFor: "id",
+               withResult: .failure(anyNSError())) {
+            serviceSpy.completeRefreshToken(withResult: .success(freshToken()))
+            loaderSpy.completeGetDetails(withResult: .failure(anyNSError()))
+        }
+    }
+    
     // MARK: - helpers
     
     func makeSUT(file: StaticString = #filePath,
