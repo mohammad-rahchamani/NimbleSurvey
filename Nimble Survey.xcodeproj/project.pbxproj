@@ -32,6 +32,7 @@
 		B5F6BB832822F4C800029D55 /* Attribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB822822F4C800029D55 /* Attribute.swift */; };
 		B5F6BB852822F4ED00029D55 /* Relationship.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB842822F4ED00029D55 /* Relationship.swift */; };
 		B5F6BB892823952F00029D55 /* TokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB882823952F00029D55 /* TokenStore.swift */; };
+		B5F6BB8B282397B500029D55 /* SecureTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB8A282397B500029D55 /* SecureTokenStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -82,6 +83,7 @@
 		B5F6BB822822F4C800029D55 /* Attribute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Attribute.swift; sourceTree = "<group>"; };
 		B5F6BB842822F4ED00029D55 /* Relationship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Relationship.swift; sourceTree = "<group>"; };
 		B5F6BB882823952F00029D55 /* TokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenStore.swift; sourceTree = "<group>"; };
+		B5F6BB8A282397B500029D55 /* SecureTokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureTokenStore.swift; sourceTree = "<group>"; };
 		DC78CCCBAC8544093EC7B27E /* Pods_Nimble_Survey.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Nimble_Survey.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -248,6 +250,7 @@
 			isa = PBXGroup;
 			children = (
 				B5F6BB882823952F00029D55 /* TokenStore.swift */,
+				B5F6BB8A282397B500029D55 /* SecureTokenStore.swift */,
 			);
 			path = Store;
 			sourceTree = "<group>";
@@ -435,6 +438,7 @@
 				B5F6BB3428211E6100029D55 /* SceneDelegate.swift in Sources */,
 				B5F6BB892823952F00029D55 /* TokenStore.swift in Sources */,
 				B5F6BB762822932400029D55 /* AuthService.swift in Sources */,
+				B5F6BB8B282397B500029D55 /* SecureTokenStore.swift in Sources */,
 				B5F6BB72282292B100029D55 /* AuthToken.swift in Sources */,
 				B5F6BB7E2822F48200029D55 /* Survey.swift in Sources */,
 				B5F6BB6A2821419600029D55 /* NetworkHandler.swift in Sources */,
