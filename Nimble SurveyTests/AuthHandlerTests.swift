@@ -182,6 +182,15 @@ class AuthHandlerTests: XCTestCase {
         }
     }
     
+    func test_logout_deliversLogoutResult() {
+        let (serviceSpy, _, sut) = makeSUT()
+        expect(sut,
+               toLogoutToken: "token",
+               withResult: .success(())) {
+            serviceSpy.completeLogout(withResult: .success(()))
+        }
+    }
+    
     // MARK: - helpers
     
     func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (AuthServiceSpy, TokenStoreSpy, AuthHandler) {
