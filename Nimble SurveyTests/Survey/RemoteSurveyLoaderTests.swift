@@ -1,5 +1,5 @@
 //
-//  SurveyLoaderTests.swift
+//  RemoteSurveyLoaderTests.swift
 //  Nimble SurveyTests
 //
 //  Created by Mohammad Rahchamani on 5/4/22.
@@ -8,7 +8,7 @@
 import XCTest
 import Nimble_Survey
 
-class SurveyLoaderTests: XCTestCase {
+class RemoteSurveyLoaderTests: XCTestCase {
 
     func test_init_doesNotMessageLoader() {
         let (spy, _) = makeSUT()

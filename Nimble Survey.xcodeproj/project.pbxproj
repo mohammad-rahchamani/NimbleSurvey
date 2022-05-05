@@ -25,7 +25,7 @@
 		B5F6BB72282292B100029D55 /* AuthToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB71282292B100029D55 /* AuthToken.swift */; };
 		B5F6BB74282292F900029D55 /* RequestLoaderSpy.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB73282292F900029D55 /* RequestLoaderSpy.swift */; };
 		B5F6BB762822932400029D55 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB752822932400029D55 /* AuthService.swift */; };
-		B5F6BB7828229C0200029D55 /* SurveyLoaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB7728229C0200029D55 /* SurveyLoaderTests.swift */; };
+		B5F6BB7828229C0200029D55 /* RemoteSurveyLoaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB7728229C0200029D55 /* RemoteSurveyLoaderTests.swift */; };
 		B5F6BB7C2822F45F00029D55 /* RemoteSurveyLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB7B2822F45F00029D55 /* RemoteSurveyLoader.swift */; };
 		B5F6BB7E2822F48200029D55 /* Survey.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB7D2822F48200029D55 /* Survey.swift */; };
 		B5F6BB802822F48B00029D55 /* SurveyDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB7F2822F48B00029D55 /* SurveyDetail.swift */; };
@@ -82,7 +82,7 @@
 		B5F6BB71282292B100029D55 /* AuthToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthToken.swift; sourceTree = "<group>"; };
 		B5F6BB73282292F900029D55 /* RequestLoaderSpy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestLoaderSpy.swift; sourceTree = "<group>"; };
 		B5F6BB752822932400029D55 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
-		B5F6BB7728229C0200029D55 /* SurveyLoaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyLoaderTests.swift; sourceTree = "<group>"; };
+		B5F6BB7728229C0200029D55 /* RemoteSurveyLoaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteSurveyLoaderTests.swift; sourceTree = "<group>"; };
 		B5F6BB7B2822F45F00029D55 /* RemoteSurveyLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteSurveyLoader.swift; sourceTree = "<group>"; };
 		B5F6BB7D2822F48200029D55 /* Survey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Survey.swift; sourceTree = "<group>"; };
 		B5F6BB7F2822F48B00029D55 /* SurveyDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyDetail.swift; sourceTree = "<group>"; };
@@ -184,11 +184,10 @@
 		B5F6BB4728211E6400029D55 /* Nimble SurveyTests */ = {
 			isa = PBXGroup;
 			children = (
+				B5F6BB9B2823D9CE00029D55 /* Network */,
+				B5F6BB9A2823D9C100029D55 /* Survey */,
+				B5F6BB992823D9B600029D55 /* Auth */,
 				B5F6BB632821413800029D55 /* Helper */,
-				B5F6BB6128211EB100029D55 /* NetworkHandlerTests.swift */,
-				B5F6BB6B2821433E00029D55 /* AuthServiceTests.swift */,
-				B5F6BB7728229C0200029D55 /* SurveyLoaderTests.swift */,
-				B5F6BB8C2823984100029D55 /* AuthServiceWithStoreTests.swift */,
 			);
 			path = "Nimble SurveyTests";
 			sourceTree = "<group>";
@@ -279,6 +278,31 @@
 				B5F6BB952823D81F00029D55 /* AuthServiceWithStore.swift */,
 			);
 			path = Service;
+			sourceTree = "<group>";
+		};
+		B5F6BB992823D9B600029D55 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				B5F6BB6B2821433E00029D55 /* AuthServiceTests.swift */,
+				B5F6BB8C2823984100029D55 /* AuthServiceWithStoreTests.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		B5F6BB9A2823D9C100029D55 /* Survey */ = {
+			isa = PBXGroup;
+			children = (
+				B5F6BB7728229C0200029D55 /* RemoteSurveyLoaderTests.swift */,
+			);
+			path = Survey;
+			sourceTree = "<group>";
+		};
+		B5F6BB9B2823D9CE00029D55 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				B5F6BB6128211EB100029D55 /* NetworkHandlerTests.swift */,
+			);
+			path = Network;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -481,7 +505,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B5F6BB6228211EB100029D55 /* NetworkHandlerTests.swift in Sources */,
-				B5F6BB7828229C0200029D55 /* SurveyLoaderTests.swift in Sources */,
+				B5F6BB7828229C0200029D55 /* RemoteSurveyLoaderTests.swift in Sources */,
 				B5F6BB74282292F900029D55 /* RequestLoaderSpy.swift in Sources */,
 				B5F6BB672821416200029D55 /* AsyncURLProtocolStub.swift in Sources */,
 				B5F6BB8D2823984100029D55 /* AuthServiceWithStoreTests.swift in Sources */,
