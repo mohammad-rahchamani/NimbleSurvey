@@ -367,6 +367,16 @@ class SurveyLoaderWithAuthTests: SurveyLoaderTests {
                                                      accessToken: token.accessToken)])
     }
     
+    func test_getDetails_failsOnGetDetailsFailureAndValidToken() {
+        let (loaderSpy, serviceSpy, sut) = makeSUT()
+        serviceSpy.stub(freshToken())
+        expect(sut,
+               toGetDetailsFor: "survey",
+               withResult: .failure(anyNSError())) {
+            loaderSpy.completeGetDetails(withResult: .failure(anyNSError()))
+        }
+    }
+    
     // MARK: - helpers
     
     func makeSUT(file: StaticString = #filePath,
