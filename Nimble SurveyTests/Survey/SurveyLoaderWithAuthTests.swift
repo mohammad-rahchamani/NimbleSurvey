@@ -58,7 +58,10 @@ public class SurveyLoaderWithAuth {
                                       surveyId: id,
                                       completion: completion)
         }, validTokenClosure: { token in
-            
+            self.loader.getDetails(forSurvey: id,
+                                   tokenType: token.tokenType,
+                                   accessToken: token.accessToken,
+                                   completion: completion)
         }, completion: completion)
         
     }
@@ -312,6 +315,19 @@ class SurveyLoaderWithAuthTests: SurveyLoaderTests {
                withResult: .failure(anyNSError())) {
             serviceSpy.completeRefreshToken(withResult: .failure(anyNSError()))
         }
+    }
+    
+    func test_getDetails_loadsFromLoaderAfterRefreshingTokenOnExpiredToken() {
+        let (loaderSpy, serviceSpy, sut) = makeSUT()
+        let expectedToken = freshToken()
+        serviceSpy.stub(expiredToken())
+        let id = "survey id"
+        sut.getDetails(forSurvey: id) { _ in }
+        serviceSpy.completeRefreshToken(withResult: .success(expectedToken))
+        XCTAssertEqual(loaderSpy.messages, [.details(id: id,
+                                                     tokenType: expectedToken.tokenType,
+                                                     accessToken: expectedToken.accessToken)])
+        
     }
     
     // MARK: - helpers
