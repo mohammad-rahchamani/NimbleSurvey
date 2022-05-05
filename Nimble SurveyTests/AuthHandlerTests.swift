@@ -84,21 +84,12 @@ class AuthHandlerTests: XCTestCase {
     
     func test_login_failsOnLoginError() {
         let (serviceSpy, _, sut) = makeSUT()
-        
-        let exp = XCTestExpectation(description: "waiting for login completion")
-        sut.login(withEmail: "",
-                  andPassword: "") { result in
-            switch result {
-            case .failure:
-                ()
-            case .success:
-                XCTFail()
-            }
-            exp.fulfill()
+        expect(sut,
+               toLoginWithEmail: "email",
+               andPassword: "password",
+               withResult: .failure(anyNSError())) {
+            serviceSpy.completeLogin(withResult: .failure(anyNSError()))
         }
-        
-        serviceSpy.completeLogin(withResult: .failure(anyNSError()))
-        wait(for: [exp], timeout: 1)
     }
     
     func test_login_requestsSaveToStoreOnSuccessfulLogin() {
@@ -110,16 +101,24 @@ class AuthHandlerTests: XCTestCase {
         sut.login(withEmail: email,
                   andPassword: password) { _ in }
         
-        let expectedToken = AuthToken(accessToken: "access",
-                                      refreshToken: "refresh",
-                                      tokenType: "type",
-                                      expiresIn: 100,
-                                      createdAt: 0)
+        let expectedToken = anyAuthToken()
         serviceSpy.completeLogin(withResult: .success(expectedToken))
         
         XCTAssertEqual(serviceSpy.messages.first, AuthServiceSpy.Message.login(email: email,
                                                                                password: password))
         XCTAssertEqual(storeSpy.messages.first, TokenStoreSpy.Message.save(expectedToken))
+    }
+    
+    
+    func test_login_deliversLoginResult() {
+        let (serviceSpy, _, sut) = makeSUT()
+        let expectedToken = anyAuthToken()
+        expect(sut,
+               toLoginWithEmail: "email",
+               andPassword: "password",
+               withResult: .success(expectedToken)) {
+            serviceSpy.completeLogin(withResult: .success(expectedToken))
+        }
     }
     
     // MARK: - helpers
@@ -133,13 +132,36 @@ class AuthHandlerTests: XCTestCase {
         trackForMemoryLeak(sut, file: file, line: line)
         return (serviceSpy, storeSpy, sut)
     }
-}
-
-
-
-
-
-
-func test_login_deliversLoginResult() {
     
+    func expect(_ sut: AuthHandler,
+                toLoginWithEmail email: String,
+                andPassword password: String,
+                withResult expectedResult: Result<AuthToken, Error>,
+                executing action: () -> (),
+                file: StaticString = #filePath,
+                line: UInt = #line) {
+        let exp = XCTestExpectation(description: "waiting for login completion")
+        sut.login(withEmail: email,
+                  andPassword: password) { result in
+            switch (result, expectedResult) {
+            case (.failure, .failure):
+                ()
+            case (.success(let token), .success(let expectedToken)):
+                XCTAssertEqual(token, expectedToken, file: file, line: line)
+            default:
+                XCTFail(file: file, line: line)
+            }
+            exp.fulfill()
+        }
+        action()
+        wait(for: [exp], timeout: 1)
+    }
+    
+    func anyAuthToken() -> AuthToken {
+        AuthToken(accessToken: "access",
+                  refreshToken: "refresh",
+                  tokenType: "type",
+                  expiresIn: 100,
+                  createdAt: 0)
+    }
 }
