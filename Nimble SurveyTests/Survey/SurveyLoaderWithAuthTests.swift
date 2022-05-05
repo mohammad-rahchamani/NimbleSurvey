@@ -167,6 +167,18 @@ class SurveyLoaderWithAuthTests: SurveyLoaderTests {
         
     }
     
+    func test_load_failsOnRefreshedTokenAndLoaderFailure() {
+        let (loaderSpy, serviceSpy, sut) = makeSUT()
+        let oldToken = expiredToken()
+        serviceSpy.stub(oldToken)
+        expect(sut,
+               toLoadPage: 1,
+               withSize: 1,
+               withResult: .failure(anyNSError())) {
+            serviceSpy.completeRefreshToken(withResult: .success(freshToken()))
+            loaderSpy.completeLoad(withResult: .failure(anyNSError()))
+        }
+    }
     
     // MARK: - helpers
     
