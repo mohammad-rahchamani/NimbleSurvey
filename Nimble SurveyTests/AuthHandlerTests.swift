@@ -21,5 +21,16 @@ public class AuthHandler {
 }
 
 class AuthHandlerTests: XCTestCase {
+    
+    func test_handler_doesNotMessageServiceAndStore() {
+        
+        let serviceSpy = AuthServiceSpy()
+        let storeSpy = TokenStoreSpy()
+        let _ = AuthHandler(service: serviceSpy, store: storeSpy)
+        
+        XCTAssertTrue(serviceSpy.messages.isEmpty)
+        XCTAssertTrue(storeSpy.messages.isEmpty)
+        
+    }
 
 }
