@@ -355,6 +355,18 @@ class SurveyLoaderWithAuthTests: SurveyLoaderTests {
         }
     }
     
+    func test_getDetails_doesNotRefreshTokenOnValidToken() {
+        let (loaderSpy, serviceSpy, sut) = makeSUT()
+        let token = freshToken()
+        let survey = "survey"
+        serviceSpy.stub(token)
+        sut.getDetails(forSurvey: survey) { _ in }
+        XCTAssertEqual(serviceSpy.messages, [.token])
+        XCTAssertEqual(loaderSpy.messages, [.details(id: survey,
+                                                     tokenType: token.tokenType,
+                                                     accessToken: token.accessToken)])
+    }
+    
     // MARK: - helpers
     
     func makeSUT(file: StaticString = #filePath,
