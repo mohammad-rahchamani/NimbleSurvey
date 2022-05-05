@@ -66,10 +66,10 @@ class AuthServiceTests: XCTestCase {
     
     func test_login_doesNotCallCompletionAfterObjectDeallocated() {
         let spy = RequestLoaderSpy()
-        var sut: AuthService? = AuthService(loader: spy,
-                                            baseURL: "https://any-url.com",
-                                            clientId: "",
-                                            clientSecret: "")
+        var sut: AuthService? = RemoteAuthService(loader: spy,
+                                                  baseURL: "https://any-url.com",
+                                                  clientId: "",
+                                                  clientSecret: "")
         sut?.login(withEmail: "", andPassword: "") { _ in
             XCTFail()
         }
@@ -124,10 +124,10 @@ class AuthServiceTests: XCTestCase {
     
     func test_register_doesNotCallCompletionAfterObjectDeallocated() {
         let spy = RequestLoaderSpy()
-        var sut: AuthService? = AuthService(loader: spy,
-                                            baseURL: "https://any-url.com",
-                                            clientId: "",
-                                            clientSecret: "")
+        var sut: AuthService? = RemoteAuthService(loader: spy,
+                                                  baseURL: "https://any-url.com",
+                                                  clientId: "",
+                                                  clientSecret: "")
         sut?.register(withEmail: "", password: "", passwordConfirmation: "") { _ in
             XCTFail()
         }
@@ -173,10 +173,10 @@ class AuthServiceTests: XCTestCase {
     
     func test_logout_doesNotCallCompletionAfterObjectDeallocated() {
         let spy = RequestLoaderSpy()
-        var sut: AuthService? = AuthService(loader: spy,
-                                            baseURL: "https://any-url.com",
-                                            clientId: "",
-                                            clientSecret: "")
+        var sut: AuthService? = RemoteAuthService(loader: spy,
+                                                  baseURL: "https://any-url.com",
+                                                  clientId: "",
+                                                  clientSecret: "")
         sut?.logout(token: "token") { _ in
             XCTFail()
         }
@@ -223,10 +223,10 @@ class AuthServiceTests: XCTestCase {
     
     func test_forgotPassword_doesNotCallCompletionAfterObjectDeallocated() {
         let spy = RequestLoaderSpy()
-        var sut: AuthService? = AuthService(loader: spy,
-                                            baseURL: "https://any-url.com",
-                                            clientId: "",
-                                            clientSecret: "")
+        var sut: AuthService? = RemoteAuthService(loader: spy,
+                                                  baseURL: "https://any-url.com",
+                                                  clientId: "",
+                                                  clientSecret: "")
         sut?.forgotPassword(email: "email") { _ in
             XCTFail()
         }
@@ -272,10 +272,10 @@ class AuthServiceTests: XCTestCase {
     
     func test_refreshToken_doesNotCallCompletionAfterObjectDeallocated() {
         let spy = RequestLoaderSpy()
-        var sut: AuthService? = AuthService(loader: spy,
-                                            baseURL: "https://any-url.com",
-                                            clientId: "",
-                                            clientSecret: "")
+        var sut: AuthService? = RemoteAuthService(loader: spy,
+                                                  baseURL: "https://any-url.com",
+                                                  clientId: "",
+                                                  clientSecret: "")
         sut?.refreshToken(token: "token"){ _ in
             XCTFail()
         }
@@ -292,10 +292,10 @@ class AuthServiceTests: XCTestCase {
                  file: StaticString = #filePath,
                  line: UInt = #line) -> (RequestLoaderSpy, AuthService) {
         let spy = RequestLoaderSpy()
-        let sut = AuthService(loader: spy,
-                              baseURL: baseURL,
-                              clientId: clientId,
-                              clientSecret: clientSecret)
+        let sut = RemoteAuthService(loader: spy,
+                                    baseURL: baseURL,
+                                    clientId: clientId,
+                                    clientSecret: clientSecret)
         trackForMemoryLeak(spy, file: file, line: line)
         trackForMemoryLeak(sut, file: file, line: line)
         return (spy, sut)

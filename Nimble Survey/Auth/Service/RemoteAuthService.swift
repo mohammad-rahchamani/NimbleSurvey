@@ -1,13 +1,13 @@
 //
-//  AuthService.swift
+//  RemoteAuthService.swift
 //  Nimble Survey
 //
-//  Created by Mohammad Rahchamani on 5/4/22.
+//  Created by Mohammad Rahchamani on 5/5/22.
 //
 
 import Foundation
 
-public class AuthService {
+public class RemoteAuthService: AuthService {
     
     private let loader: RequestLoader
     private let baseURL: String
@@ -84,7 +84,7 @@ public class AuthService {
     }
     
     public func forgotPassword(email: String,
-                               completion: @escaping (Result<(String), Error>) -> ()) {
+                               completion: @escaping (Result<String, Error>) -> ()) {
         let user = ForgotPasswordUserData(email: email)
         let data = ForgotPasswordRequestData(user: user,
                                              clientId: clientId,
@@ -121,7 +121,7 @@ public class AuthService {
 }
 
 // MARK: - data types
-extension AuthService {
+extension RemoteAuthService {
     
     private struct LoginRequestData: Codable {
         let grantType: String
@@ -192,7 +192,7 @@ extension AuthService {
 }
 
 // MARK: - requests
-extension AuthService {
+extension RemoteAuthService {
     private func loginRequest(withData data: LoginRequestData) -> URLRequest {
         return request(forEndPoint: "/api/v1/oauth/token", data: data)
     }
@@ -225,7 +225,7 @@ extension AuthService {
 }
 
 // MARK: - parsers
-extension AuthService {
+extension RemoteAuthService {
     private func parseLoginData(_ data: Data) -> Result<AuthToken, Error> {
         return parse(data).map { (response: LoginResponseData) in
             response.data.attributes
