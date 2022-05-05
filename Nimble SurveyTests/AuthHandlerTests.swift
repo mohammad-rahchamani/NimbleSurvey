@@ -50,7 +50,8 @@ public class AuthHandler: AuthService {
     }
     
     public func refreshToken(token: String, completion: @escaping (Result<AuthToken, Error>) -> ()) {
-        service.refreshToken(token: token) { result in
+        service.refreshToken(token: token) { [weak self] result in
+            guard let self = self else { return }
             if let token = try? result.get() {
                 self.store.save(token: token)
             }
@@ -222,6 +223,51 @@ class AuthHandlerTests: XCTestCase {
         }
     }
     
+    // MARK: - refresh token
+    
+    func test_refreshToken_requestsFromService() {
+        let (serviceSpy, storeSpy, sut) = makeSUT()
+        
+        let token = "token"
+        sut.refreshToken(token: token) { _ in }
+        
+        XCTAssertEqual(serviceSpy.messages, [AuthServiceSpy.Message.refreshToken(token: token)])
+        XCTAssertTrue(storeSpy.messages.isEmpty)
+    }
+    
+    func test_refreshToken_failsOnServiceFailure() {
+        let (serviceSpy, _, sut) = makeSUT()
+        expect(sut,
+               toRefreshToken: "token",
+               withResult: .failure(anyNSError())) {
+            serviceSpy.completeRefreshToken(withResult: .failure(anyNSError()))
+        }
+    }
+    
+    func test_refreshToken_requestsSaveToStoreOnSuccessfulRefresh() {
+        
+        let (serviceSpy, storeSpy, sut) = makeSUT()
+        
+        let token = "token"
+        sut.refreshToken(token: token) { _ in }
+        
+        let expectedToken = anyAuthToken()
+        serviceSpy.completeRefreshToken(withResult: .success(expectedToken))
+        
+        XCTAssertEqual(serviceSpy.messages, [AuthServiceSpy.Message.refreshToken(token: token)])
+        XCTAssertEqual(storeSpy.messages, [TokenStoreSpy.Message.save(expectedToken)])
+    }
+    
+    func test_refreshToken_deliversRefreshTokenResult() {
+        let (serviceSpy, _, sut) = makeSUT()
+        let expectedToken = anyAuthToken()
+        expect(sut,
+               toRefreshToken: "token",
+               withResult: .success(expectedToken)) {
+            serviceSpy.completeRefreshToken(withResult: .success(expectedToken))
+        }
+    }
+    
     // MARK: - helpers
     
     func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (AuthServiceSpy, TokenStoreSpy, AuthHandler) {
@@ -319,6 +365,28 @@ class AuthHandlerTests: XCTestCase {
                 ()
             case (.success(let text), .success(let expectedText)):
                 XCTAssertEqual(text, expectedText, file: file, line: line)
+            default:
+                XCTFail(file: file, line: line)
+            }
+            exp.fulfill()
+        }
+        action()
+        wait(for: [exp], timeout: 1)
+    }
+    
+    func expect(_ sut: AuthHandler,
+                toRefreshToken token: String,
+                withResult expectedResult: Result<AuthToken, Error>,
+                executing action: () -> (),
+                file: StaticString = #filePath,
+                line: UInt = #line) {
+        let exp = XCTestExpectation(description: "waiting for refresh token completion")
+        sut.refreshToken(token: token) { result in
+            switch (result, expectedResult) {
+            case (.failure, .failure):
+                ()
+            case (.success(let token), .success(let expectedToken)):
+                XCTAssertEqual(token, expectedToken, file: file, line: line)
             default:
                 XCTFail(file: file, line: line)
             }
