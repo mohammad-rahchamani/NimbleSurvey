@@ -35,6 +35,8 @@
 		B5F6BB8B282397B500029D55 /* SecureTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB8A282397B500029D55 /* SecureTokenStore.swift */; };
 		B5F6BB8D2823984100029D55 /* AuthHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB8C2823984100029D55 /* AuthHandlerTests.swift */; };
 		B5F6BB902823993600029D55 /* RemoteAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB8F2823993600029D55 /* RemoteAuthService.swift */; };
+		B5F6BB9228239D9700029D55 /* AuthServiceSpy.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB9128239D9700029D55 /* AuthServiceSpy.swift */; };
+		B5F6BB9428239DBC00029D55 /* TokenStoreSpy.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB9328239DBC00029D55 /* TokenStoreSpy.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -88,6 +90,8 @@
 		B5F6BB8A282397B500029D55 /* SecureTokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureTokenStore.swift; sourceTree = "<group>"; };
 		B5F6BB8C2823984100029D55 /* AuthHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthHandlerTests.swift; sourceTree = "<group>"; };
 		B5F6BB8F2823993600029D55 /* RemoteAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteAuthService.swift; sourceTree = "<group>"; };
+		B5F6BB9128239D9700029D55 /* AuthServiceSpy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthServiceSpy.swift; sourceTree = "<group>"; };
+		B5F6BB9328239DBC00029D55 /* TokenStoreSpy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenStoreSpy.swift; sourceTree = "<group>"; };
 		DC78CCCBAC8544093EC7B27E /* Pods_Nimble_Survey.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Nimble_Survey.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -201,6 +205,8 @@
 				B5F6BB662821416200029D55 /* AsyncURLProtocolStub.swift */,
 				B5F6BB6D2822654000029D55 /* XCTestCase+Extensions.swift */,
 				B5F6BB73282292F900029D55 /* RequestLoaderSpy.swift */,
+				B5F6BB9128239D9700029D55 /* AuthServiceSpy.swift */,
+				B5F6BB9328239DBC00029D55 /* TokenStoreSpy.swift */,
 			);
 			path = Helper;
 			sourceTree = "<group>";
@@ -471,8 +477,10 @@
 				B5F6BB74282292F900029D55 /* RequestLoaderSpy.swift in Sources */,
 				B5F6BB672821416200029D55 /* AsyncURLProtocolStub.swift in Sources */,
 				B5F6BB8D2823984100029D55 /* AuthHandlerTests.swift in Sources */,
+				B5F6BB9228239D9700029D55 /* AuthServiceSpy.swift in Sources */,
 				B5F6BB6E2822654000029D55 /* XCTestCase+Extensions.swift in Sources */,
 				B5F6BB652821414700029D55 /* URLProtocolStub.swift in Sources */,
+				B5F6BB9428239DBC00029D55 /* TokenStoreSpy.swift in Sources */,
 				B5F6BB6C2821433E00029D55 /* AuthServiceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
