@@ -180,6 +180,20 @@ class SurveyLoaderWithAuthTests: SurveyLoaderTests {
         }
     }
     
+    func test_load_deliversDataOnRefreshedTokenAndLoaderResult() {
+        let (loaderSpy, serviceSpy, sut) = makeSUT()
+        let oldToken = expiredToken()
+        serviceSpy.stub(oldToken)
+        let expectedResult: [Survey] = sampleSurveyList()
+        expect(sut,
+               toLoadPage: 1,
+               withSize: 1,
+               withResult: .success(expectedResult)) {
+            serviceSpy.completeRefreshToken(withResult: .success(freshToken()))
+            loaderSpy.completeLoad(withResult: .success(expectedResult))
+        }
+    }
+    
     // MARK: - helpers
     
     func makeSUT(file: StaticString = #filePath,
@@ -241,6 +255,26 @@ class SurveyLoaderWithAuthTests: SurveyLoaderTests {
         action()
         
         wait(for: [exp], timeout: 1)
+    }
+    
+    func sampleSurveyList() -> [Survey] {
+        [
+            Survey(id: "d5de6a8f8f5f1cfe51bc",
+                   type: "survey",
+                   attributes: SurveyAttributes(title: "Scarlett Bangkok",
+                                               description: "We'd love ot hear from you!",
+                                               thankEmailAboveThreshold: "sample email above",
+                                               thankEmailBelowThreshold: "sample email below",
+                                               isActive: true,
+                                               coverImageUrl: "https://dhdbhh0jsld0o.cloudfront.net/m/1ea51560991bcb7d00d0_",
+                                               createdAt: "2017-01-23T07:48:12.991Z",
+                                               activeAt: "2015-10-08T07:04:00.000Z",
+                                               inactiveAt: nil,
+                                               surveyType: "Restaurant"),
+                   relationships: SurveyRelationship(questions: SurveyQuestionsOrAnswers(data: [
+                    SurveyRelationData(id: "d3afbcf2b1d60af845dc", type: "question")
+                   ])))
+        ]
     }
     
     func expiredToken() -> AuthToken {
