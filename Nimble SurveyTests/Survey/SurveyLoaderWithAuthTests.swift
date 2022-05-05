@@ -62,7 +62,10 @@ public class SurveyLoaderWithAuth {
     
     public func getDetails(forSurvey id: String,
                            completion: @escaping (Result<[SurveyDetail], Error>) -> ()) {
-        
+        guard let currentToken = authHandler.token() else {
+            completion(.failure(LoaderWithAuthError.noToken))
+            return
+        }
     }
     
     private enum LoaderWithAuthError: Error {
@@ -124,6 +127,8 @@ class SurveyLoaderWithAuthTests: SurveyLoaderTests {
         XCTAssertEqual(loaderSpy.messages, [])
         XCTAssertEqual(serviceSpy.messages, [])
     }
+    
+    // MARK: - load
     
     func test_load_checksCurrentTokenBeforeMakingRequest() {
         let (loaderSpy, serviceSpy, sut) = makeSUT()
@@ -240,6 +245,15 @@ class SurveyLoaderWithAuthTests: SurveyLoaderTests {
                withResult: .success(expectedResult)) {
             loaderSpy.completeLoad(withResult: .success(expectedResult))
         }
+    }
+    
+    // MARK: - get details
+    
+    func test_getDetails_checksCurrentTokenBeforeMakingRequest() {
+        let (loaderSpy, serviceSpy, sut) = makeSUT()
+        sut.getDetails(forSurvey: "") { _ in }
+        XCTAssertEqual(loaderSpy.messages, [])
+        XCTAssertEqual(serviceSpy.messages, [.token])
     }
     
     // MARK: - helpers
