@@ -69,6 +69,8 @@ class AuthHandlerTests: XCTestCase {
         XCTAssertTrue(storeSpy.messages.isEmpty)
     }
     
+    // MARK: - login
+    
     func test_login_requestsLoginFromService() {
         let (serviceSpy, storeSpy, sut) = makeSUT()
         
@@ -77,8 +79,8 @@ class AuthHandlerTests: XCTestCase {
         sut.login(withEmail: email,
                   andPassword: password) { _ in }
         
-        XCTAssertEqual(serviceSpy.messages.first, AuthServiceSpy.Message.login(email: email,
-                                                                               password: password))
+        XCTAssertEqual(serviceSpy.messages, [AuthServiceSpy.Message.login(email: email,
+                                                                          password: password)])
         XCTAssertTrue(storeSpy.messages.isEmpty)
     }
     
@@ -104,11 +106,10 @@ class AuthHandlerTests: XCTestCase {
         let expectedToken = anyAuthToken()
         serviceSpy.completeLogin(withResult: .success(expectedToken))
         
-        XCTAssertEqual(serviceSpy.messages.first, AuthServiceSpy.Message.login(email: email,
-                                                                               password: password))
-        XCTAssertEqual(storeSpy.messages.first, TokenStoreSpy.Message.save(expectedToken))
+        XCTAssertEqual(serviceSpy.messages, [AuthServiceSpy.Message.login(email: email,
+                                                                          password: password)])
+        XCTAssertEqual(storeSpy.messages, [TokenStoreSpy.Message.save(expectedToken)])
     }
-    
     
     func test_login_deliversLoginResult() {
         let (serviceSpy, _, sut) = makeSUT()
@@ -119,6 +120,57 @@ class AuthHandlerTests: XCTestCase {
                withResult: .success(expectedToken)) {
             serviceSpy.completeLogin(withResult: .success(expectedToken))
         }
+    }
+    
+    // MARK: - register
+    
+    func test_register_requestsRegisterFromService() {
+        let (serviceSpy, storeSpy, sut) = makeSUT()
+        
+        let email = "email"
+        let password = "password"
+        sut.register(withEmail: email,
+                     password: password,
+                     passwordConfirmation: password) { _ in }
+        
+        XCTAssertEqual(serviceSpy.messages, [AuthServiceSpy.Message.register(email: email,
+                                                                             password: password,
+                                                                             confirmation: password)])
+        XCTAssertTrue(storeSpy.messages.isEmpty)
+    }
+    
+    func test_register_failsOnRegisterError() {
+        let (serviceSpy, _, sut) = makeSUT()
+        expect(sut,
+               toRegisterWithEmail: "email",
+               password: "password",
+               andConfirmation: "password",
+               withResult: .failure(anyNSError())) {
+            serviceSpy.completeRegister(withResult: .failure(anyNSError()))
+        }
+    }
+    
+    func test_register_deliversRegisterResult() {
+        let (serviceSpy, _, sut) = makeSUT()
+        expect(sut,
+               toRegisterWithEmail: "email",
+               password: "password",
+               andConfirmation: "password",
+               withResult: .success(())) {
+            serviceSpy.completeRegister(withResult: .success(()))
+        }
+    }
+    
+    // MARK: - logout
+    
+    func test_logout_requestsDeleteFromStoreAndLogoutFromService() {
+        let (serviceSpy, storeSpy, sut) = makeSUT()
+        
+        let token = "token"
+        sut.logout(token: token) { _ in }
+        
+        XCTAssertEqual(serviceSpy.messages, [AuthServiceSpy.Message.logout(token: token)])
+        XCTAssertEqual(storeSpy.messages, [TokenStoreSpy.Message.delete])
     }
     
     // MARK: - helpers
@@ -148,6 +200,32 @@ class AuthHandlerTests: XCTestCase {
                 ()
             case (.success(let token), .success(let expectedToken)):
                 XCTAssertEqual(token, expectedToken, file: file, line: line)
+            default:
+                XCTFail(file: file, line: line)
+            }
+            exp.fulfill()
+        }
+        action()
+        wait(for: [exp], timeout: 1)
+    }
+    
+    func expect(_ sut: AuthHandler,
+                toRegisterWithEmail email: String,
+                password: String,
+                andConfirmation confirmation: String,
+                withResult expectedResult: Result<(), Error>,
+                executing action: () -> (),
+                file: StaticString = #filePath,
+                line: UInt = #line) {
+        let exp = XCTestExpectation(description: "waiting for register completion")
+        sut.register(withEmail: email,
+                     password: password,
+                     passwordConfirmation: confirmation) { result in
+            switch (result, expectedResult) {
+            case (.failure, .failure):
+                ()
+            case (.success, .success):
+                ()
             default:
                 XCTFail(file: file, line: line)
             }
