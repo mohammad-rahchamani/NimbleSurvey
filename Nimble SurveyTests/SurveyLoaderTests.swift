@@ -73,7 +73,7 @@ class SurveyLoaderTests: XCTestCase {
     
     func test_load_doesNotCallCompletionAfterObjectDeallocated() {
         let spy = RequestLoaderSpy()
-        var sut: SurveyLoader? = SurveyLoader(loader: spy, baseURL: "")
+        var sut: RemoteSurveyLoader? = RemoteSurveyLoader(loader: spy, baseURL: "")
         sut?.load(page: 1, size: 10, tokenType: "", accessToken: "") { _ in
             XCTFail()
         }
@@ -140,7 +140,7 @@ class SurveyLoaderTests: XCTestCase {
     
     func test_getDetails_doesNotCallCompletionAfterObjectDeallocated() {
         let spy = RequestLoaderSpy()
-        var sut: SurveyLoader? = SurveyLoader(loader: spy, baseURL: "https://any-url.com")
+        var sut: RemoteSurveyLoader? = RemoteSurveyLoader(loader: spy, baseURL: "https://any-url.com")
         sut?.getDetails(forSurvey: "", tokenType: "", accessToken: "") { _ in
             XCTFail()
         }
@@ -153,15 +153,15 @@ class SurveyLoaderTests: XCTestCase {
     
     func makeSUT(baseURL: String = "https://any-url.com",
                  file: StaticString = #filePath,
-                 line: UInt = #line) -> (RequestLoaderSpy, SurveyLoader) {
+                 line: UInt = #line) -> (RequestLoaderSpy, RemoteSurveyLoader) {
         let spy = RequestLoaderSpy()
-        let sut = SurveyLoader(loader: spy, baseURL: baseURL)
+        let sut = RemoteSurveyLoader(loader: spy, baseURL: baseURL)
         trackForMemoryLeak(spy, file: file, line: line)
         trackForMemoryLeak(sut, file: file, line: line)
         return (spy, sut)
     }
     
-    func expect(_ sut: SurveyLoader,
+    func expect(_ sut: RemoteSurveyLoader,
                 toLoadPage page: Int,
                 withSize size: Int,
                 tokenType: String,
@@ -191,7 +191,7 @@ class SurveyLoaderTests: XCTestCase {
         wait(for: [exp], timeout: 1)
     }
     
-    func expect(_ sut: SurveyLoader,
+    func expect(_ sut: RemoteSurveyLoader,
                 toGetDetailsFor surveyId: String,
                 tokenType: String,
                 accessToken: String,
