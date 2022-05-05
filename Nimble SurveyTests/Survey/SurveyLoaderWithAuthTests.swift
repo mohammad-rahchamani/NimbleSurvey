@@ -256,6 +256,14 @@ class SurveyLoaderWithAuthTests: SurveyLoaderTests {
         XCTAssertEqual(serviceSpy.messages, [.token])
     }
     
+    func test_getDetails_failsWithoutToken() {
+        let (_, serviceSpy, sut) = makeSUT()
+        serviceSpy.stub(nil)
+        expect(sut,
+               toGetDetailsFor: "",
+               withResult: .failure(anyNSError())) { }
+    }
+    
     // MARK: - helpers
     
     func makeSUT(file: StaticString = #filePath,
