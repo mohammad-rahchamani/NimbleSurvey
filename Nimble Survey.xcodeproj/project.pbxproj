@@ -31,6 +31,7 @@
 		B5F6BB802822F48B00029D55 /* SurveyDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB7F2822F48B00029D55 /* SurveyDetail.swift */; };
 		B5F6BB832822F4C800029D55 /* Attribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB822822F4C800029D55 /* Attribute.swift */; };
 		B5F6BB852822F4ED00029D55 /* Relationship.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB842822F4ED00029D55 /* Relationship.swift */; };
+		B5F6BB892823952F00029D55 /* TokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F6BB882823952F00029D55 /* TokenStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -80,6 +81,7 @@
 		B5F6BB7F2822F48B00029D55 /* SurveyDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyDetail.swift; sourceTree = "<group>"; };
 		B5F6BB822822F4C800029D55 /* Attribute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Attribute.swift; sourceTree = "<group>"; };
 		B5F6BB842822F4ED00029D55 /* Relationship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Relationship.swift; sourceTree = "<group>"; };
+		B5F6BB882823952F00029D55 /* TokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenStore.swift; sourceTree = "<group>"; };
 		DC78CCCBAC8544093EC7B27E /* Pods_Nimble_Survey.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Nimble_Survey.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -115,7 +117,6 @@
 				6704C13BEAE917A70F72B3FE /* Pods-Nimble Survey.debug.xcconfig */,
 				703C38AD4FC4CB5D38E693E7 /* Pods-Nimble Survey.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -208,6 +209,7 @@
 		B5F6BB6F282292A000029D55 /* Auth */ = {
 			isa = PBXGroup;
 			children = (
+				B5F6BB87282394BC00029D55 /* Store */,
 				B5F6BB70282292A600029D55 /* Model */,
 				B5F6BB752822932400029D55 /* AuthService.swift */,
 			);
@@ -240,6 +242,14 @@
 				B5F6BB842822F4ED00029D55 /* Relationship.swift */,
 			);
 			path = Model;
+			sourceTree = "<group>";
+		};
+		B5F6BB87282394BC00029D55 /* Store */ = {
+			isa = PBXGroup;
+			children = (
+				B5F6BB882823952F00029D55 /* TokenStore.swift */,
+			);
+			path = Store;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -423,6 +433,7 @@
 				B5F6BB3228211E6100029D55 /* AppDelegate.swift in Sources */,
 				B5F6BB802822F48B00029D55 /* SurveyDetail.swift in Sources */,
 				B5F6BB3428211E6100029D55 /* SceneDelegate.swift in Sources */,
+				B5F6BB892823952F00029D55 /* TokenStore.swift in Sources */,
 				B5F6BB762822932400029D55 /* AuthService.swift in Sources */,
 				B5F6BB72282292B100029D55 /* AuthToken.swift in Sources */,
 				B5F6BB7E2822F48200029D55 /* Survey.swift in Sources */,
