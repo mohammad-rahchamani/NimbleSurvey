@@ -377,6 +377,17 @@ class SurveyLoaderWithAuthTests: SurveyLoaderTests {
         }
     }
     
+    func test_getDetails_deliversDataOnSuccessfulGetDetailsAndValidToken() {
+        let (loaderSpy, serviceSpy, sut) = makeSUT()
+        serviceSpy.stub(freshToken())
+        let expectedResult = sampleSurveyDetails()
+        expect(sut,
+               toGetDetailsFor: "survey",
+               withResult: .success(expectedResult)) {
+            loaderSpy.completeGetDetails(withResult: .success(expectedResult))
+        }
+    }
+    
     // MARK: - helpers
     
     func makeSUT(file: StaticString = #filePath,
