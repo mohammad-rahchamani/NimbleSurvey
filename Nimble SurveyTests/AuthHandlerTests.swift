@@ -101,6 +101,27 @@ class AuthHandlerTests: XCTestCase {
         wait(for: [exp], timeout: 1)
     }
     
+    func test_login_requestsSaveToStoreOnSuccessfulLogin() {
+        
+        let (serviceSpy, storeSpy, sut) = makeSUT()
+        
+        let email = "email"
+        let password = "password"
+        sut.login(withEmail: email,
+                  andPassword: password) { _ in }
+        
+        let expectedToken = AuthToken(accessToken: "access",
+                                      refreshToken: "refresh",
+                                      tokenType: "type",
+                                      expiresIn: 100,
+                                      createdAt: 0)
+        serviceSpy.completeLogin(withResult: .success(expectedToken))
+        
+        XCTAssertEqual(serviceSpy.messages.first, AuthServiceSpy.Message.login(email: email,
+                                                                               password: password))
+        XCTAssertEqual(storeSpy.messages.first, TokenStoreSpy.Message.save(expectedToken))
+    }
+    
     // MARK: - helpers
     
     func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (AuthServiceSpy, TokenStoreSpy, AuthHandler) {
@@ -112,4 +133,13 @@ class AuthHandlerTests: XCTestCase {
         trackForMemoryLeak(sut, file: file, line: line)
         return (serviceSpy, storeSpy, sut)
     }
+}
+
+
+
+
+
+
+func test_login_deliversLoginResult() {
+    
 }
